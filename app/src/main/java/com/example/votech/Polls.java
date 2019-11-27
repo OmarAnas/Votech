@@ -20,6 +20,7 @@ public class Polls
   private Date startDate;
   private Date updated;
   private String objectId;
+  private Integer instructorID;
   private Integer id;
   private Date endDate;
   public Date getCreated()
@@ -80,6 +81,16 @@ public class Polls
   public String getObjectId()
   {
     return objectId;
+  }
+
+  public Integer getInstructorID()
+  {
+    return instructorID;
+  }
+
+  public void setInstructorID( Integer instructorID )
+  {
+    this.instructorID = instructorID;
   }
 
   public Integer getId()

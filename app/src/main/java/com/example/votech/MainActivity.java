@@ -8,6 +8,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -21,14 +22,14 @@ import com.backendless.exceptions.BackendlessFault;
 public class MainActivity extends AppCompatActivity implements AsyncCallback<BackendlessUser> {
      EditText email,password;
      TextView signup;
-    String text = "First time here? Sign Up.";
-    SpannableString spannableString = new SpannableString(text);
+     String text = "First time here? Sign Up.";
+     SpannableString spannableString = new SpannableString(text);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        email=findViewById(R.id.email);
-        password=findViewById(R.id.password);
+        email=findViewById(R.id.name);
+        password=findViewById(R.id.password2);
         signup=findViewById(R.id.signUp);
 
         spannableString.setSpan(clickableSpan, 17,24, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -38,7 +39,25 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
 
         Backendless.initApp(this,"B808DB02-5530-3A99-FFE3-39A739A3D500","BB1EC234-5D1B-4738-8B61-4471397180A7");
 
+        Log.i("oncreate login",Backendless.UserService.CurrentUser()+"");
+       if(Backendless.UserService.CurrentUser() != null )
+       {
+           Intent in=new Intent(this,HomePage.class);
+           startActivity(in);
+           this.finish();
+       }
+    }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(Backendless.UserService.CurrentUser() != null )
+        {
+            Intent in=new Intent(this,HomePage.class);
+            startActivity(in);
+            this.finish();
+        }
     }
 
     ClickableSpan clickableSpan = new ClickableSpan() {
@@ -46,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
         public void onClick(View widget) {
             Intent in=new Intent(MainActivity.this,Register.class);
             startActivity(in);
+            MainActivity.this.finish();
         }
     };
 
@@ -59,8 +79,9 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
     @Override
     public void handleResponse(BackendlessUser response) {
         Intent in=new Intent(this,HomePage.class);
-        Toast.makeText(this, response.getProperty("id").toString(), Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, response.getProperty("id").toString(), Toast.LENGTH_LONG).show();
                 startActivity(in);
+        this.finish();
     }
 
     @Override
@@ -71,6 +92,5 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
             Toast.makeText(this, "Email or Password is empty", Toast.LENGTH_LONG).show();
         else
             Toast.makeText(this,fault.getMessage(), Toast.LENGTH_SHORT).show();
-
     }
 }

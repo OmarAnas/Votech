@@ -9,11 +9,11 @@
    >
 
     <EditText
-        android:id="@+id/email"
+        android:id="@+id/name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="74dp"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="100dp"
         android:layout_marginEnd="74dp"
         android:drawableLeft="@drawable/emailicon"
         android:ems="10"
@@ -27,7 +27,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <EditText
-        android:id="@+id/password"
+        android:id="@+id/password2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="74dp"
@@ -42,22 +42,22 @@
         android:textColorHint="#646873"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/email" />
+        app:layout_constraintTop_toBottomOf="@+id/name" />
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="74dp"
         android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_default_monochrome"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/logo" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/login"
+        android:id="@+id/register"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="74dp"
@@ -69,7 +69,7 @@
         android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password" />
+        app:layout_constraintTop_toBottomOf="@+id/password2" />
 
     <TextView
         android:id="@+id/signUp"
@@ -86,6 +86,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login"
+        app:layout_constraintTop_toBottomOf="@+id/register"
         app:layout_constraintVertical_bias="0.060000002" />
 </android.support.constraint.ConstraintLayout>
