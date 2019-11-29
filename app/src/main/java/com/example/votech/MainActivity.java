@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
      TextView signup;
      String text = "First time here? Sign Up.";
      SpannableString spannableString = new SpannableString(text);
+     boolean isNewActivity=true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
 
         Backendless.initApp(this,"B808DB02-5530-3A99-FFE3-39A739A3D500","BB1EC234-5D1B-4738-8B61-4471397180A7");
 
-        Log.i("oncreate login",Backendless.UserService.CurrentUser()+"");
        if(Backendless.UserService.CurrentUser() != null )
        {
            Intent in=new Intent(this,HomePage.class);
@@ -78,10 +78,15 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
 
     @Override
     public void handleResponse(BackendlessUser response) {
-        Intent in=new Intent(this,HomePage.class);
+        if(isNewActivity)
+        {
+            isNewActivity=false;
+            Intent in=new Intent(this,HomePage.class);
 //        Toast.makeText(this, response.getProperty("id").toString(), Toast.LENGTH_LONG).show();
-                startActivity(in);
-        this.finish();
+            startActivity(in);
+            this.finish();
+        }
+
     }
 
     @Override

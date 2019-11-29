@@ -28,9 +28,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Register extends AppCompatActivity implements AsyncCallback<BackendlessUser>  {
-    EditText name, email, password, cofirmpassword;
+    EditText name, email, password, confirmpassword;
     Spinner facultySpinner;
     DataQueryBuilder dataQuery = DataQueryBuilder.create();
+    boolean isRegistered=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +43,7 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
         name = findViewById(R.id.name);
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
-        cofirmpassword = findViewById(R.id.password2);
+        confirmpassword = findViewById(R.id.password2);
         facultySpinner = findViewById(R.id.faculty);
 
         getFaculties();
@@ -68,9 +69,9 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
     public void register(View view) {
         if (name.getText().toString().equals(""))
             Toast.makeText(this, "Name is required", Toast.LENGTH_LONG).show();
-        else if (password.getText().toString().equals("") || cofirmpassword.getText().toString().equals("") )
+        else if (password.getText().toString().equals("") || confirmpassword.getText().toString().equals("") )
             Toast.makeText(Register.this, "Passwords cannot be empty", Toast.LENGTH_LONG).show();
-        else if (!(password.getText().toString().equals(cofirmpassword.getText().toString())))
+        else if (!(password.getText().toString().equals(confirmpassword.getText().toString())))
             Toast.makeText(Register.this, "Passwords don't match", Toast.LENGTH_LONG).show();
         else if (facultySpinner.getSelectedItemPosition()==0)
             Toast.makeText(Register.this, "Please Select your Faculty", Toast.LENGTH_LONG).show();
@@ -100,6 +101,7 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
 
     @Override
     public void handleResponse(BackendlessUser response) {
+        isRegistered=true;
         Toast.makeText(this, "Registered Successfully", Toast.LENGTH_LONG).show();
         Intent in = new Intent(this, MainActivity.class);
         startActivity(in);
@@ -108,14 +110,16 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
 
     @Override
     public void handleFault(BackendlessFault fault) {
-        if (fault.getCode().equals("3011"))
-            Toast.makeText(this, "Password cannot be empty", Toast.LENGTH_LONG).show();
-        else if (fault.getCode().equals("3013"))
-            Toast.makeText(this, "Email cannot be empty", Toast.LENGTH_LONG).show();
-        else if (fault.getCode().equals("3033"))
-            Toast.makeText(this, "User already exists", Toast.LENGTH_LONG).show();
-        else
-            Toast.makeText(this, fault.getMessage(), Toast.LENGTH_LONG).show();
+        if(!isRegistered) {
+            if (fault.getCode().equals("3011"))
+                Toast.makeText(this, "Password cannot be empty", Toast.LENGTH_LONG).show();
+            else if (fault.getCode().equals("3013"))
+                Toast.makeText(this, "Email cannot be empty", Toast.LENGTH_LONG).show();
+            else if (fault.getCode().equals("3033"))
+                Toast.makeText(this, "User already exists", Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(this, fault.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
