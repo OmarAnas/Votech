@@ -1,7 +1,3 @@
 <resources>
     <string name="app_name">Votech</string>
-    <string name="title_activity_home">Home</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
-    <string name="appbar_scrolling_view_behavior">1</string>
 </resources>
