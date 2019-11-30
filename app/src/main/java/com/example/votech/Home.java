@@ -1,0 +1,58 @@
+package com.example.votech;
+
+import android.os.Bundle;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
+import android.util.Log;
+import android.view.MenuItem;
+import android.widget.TextView;
+
+import com.backendless.Backendless;
+
+public class Home extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+    private TextView mTextMessage;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+        BottomNavigationView navView = findViewById(R.id.nav_view);
+
+//        Log.i("Hi",Backendless.UserService.CurrentUser()+"");
+
+        int userType= Integer.parseInt(Backendless.UserService.CurrentUser().getProperty("UserTypeID").toString());
+
+        if (userType==1) // Instructor
+            navView.inflateMenu(R.menu.bottom_nav_menu);
+        else if (userType==2) // Student
+            navView.inflateMenu(R.menu.bottom_nav_menu_student);
+
+        mTextMessage = findViewById(R.id.message);
+        navView.setOnNavigationItemSelectedListener(this);
+
+        //default fragment for both users
+        FirstFragment fragment = new FirstFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragment).commit();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        if (menuItem.getItemId()==R.id.navigation_home)
+        {
+            FirstFragment fragment = new FirstFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragment).commit();
+        }
+        else if (menuItem.getItemId()==R.id.navigation_dashboard)
+        {
+            SecondFragment fragment = new SecondFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragment).commit();
+        }
+        else if (menuItem.getItemId()==R.id.navigation_notifications)
+        {
+            ThirdFragment fragment = new ThirdFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragment).commit();
+        }
+        return true;
+    }
+}

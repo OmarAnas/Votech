@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
 
        if(Backendless.UserService.CurrentUser() != null )
        {
-           Intent in=new Intent(this,HomePage.class);
+           Intent in=new Intent(this,Home.class);
            startActivity(in);
            this.finish();
        }
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
         super.onResume();
         if(Backendless.UserService.CurrentUser() != null )
         {
-            Intent in=new Intent(this,HomePage.class);
+            Intent in=new Intent(this,Home.class);
             startActivity(in);
             this.finish();
         }
@@ -81,8 +81,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
         if(isNewActivity)
         {
             isNewActivity=false;
-            Intent in=new Intent(this,HomePage.class);
-//        Toast.makeText(this, response.getProperty("id").toString(), Toast.LENGTH_LONG).show();
+            Intent in=new Intent(this,Home.class);
             startActivity(in);
             this.finish();
         }
