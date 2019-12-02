@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,14 +17,12 @@ import android.widget.Toast;
 
 import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
-import com.backendless.Persistence;
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
 import com.backendless.persistence.DataQueryBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Register extends AppCompatActivity implements AsyncCallback<BackendlessUser>  {
     EditText name, email, password, confirmpassword;
@@ -40,11 +37,11 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        name = findViewById(R.id.name);
-        email = findViewById(R.id.email);
+        name = findViewById(R.id.emailText);
+        email = findViewById(R.id.nameText);
         password = findViewById(R.id.password);
         confirmpassword = findViewById(R.id.password2);
-        facultySpinner = findViewById(R.id.faculty);
+        facultySpinner = findViewById(R.id.facultyText);
 
         getFaculties();
 

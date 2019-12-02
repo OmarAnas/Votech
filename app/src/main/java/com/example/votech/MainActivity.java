@@ -8,7 +8,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -29,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        email=findViewById(R.id.name);
+        email=findViewById(R.id.emailText);
         password=findViewById(R.id.password2);
         signup=findViewById(R.id.signUp);
 

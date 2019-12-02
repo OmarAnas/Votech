@@ -1,6 +1,8 @@
 package com.example.votech;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
@@ -9,17 +11,16 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.backendless.Backendless;
+import com.squareup.picasso.Picasso;
 
 public class Home extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
-    private TextView mTextMessage;
+//    private TextView mTextMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         BottomNavigationView navView = findViewById(R.id.nav_view);
-
-//        Log.i("Hi",Backendless.UserService.CurrentUser()+"");
 
         int userType= Integer.parseInt(Backendless.UserService.CurrentUser().getProperty("UserTypeID").toString());
 
@@ -28,7 +29,7 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
         else if (userType==2) // Student
             navView.inflateMenu(R.menu.bottom_nav_menu_student);
 
-        mTextMessage = findViewById(R.id.message);
+//        mTextMessage = findViewById(R.id.message);
         navView.setOnNavigationItemSelectedListener(this);
 
         //default fragment for both users
@@ -51,6 +52,11 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
         else if (menuItem.getItemId()==R.id.navigation_notifications)
         {
             ThirdFragment fragment = new ThirdFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragment).commit();
+        }
+        else if (menuItem.getItemId()==R.id.navigation_profile)
+        {
+            profileFragment fragment = new profileFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragment).commit();
         }
         return true;
