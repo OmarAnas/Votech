@@ -25,7 +25,7 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
         int userType= Integer.parseInt(Backendless.UserService.CurrentUser().getProperty("UserTypeID").toString());
 
         if (userType==1) // Instructor
-            navView.inflateMenu(R.menu.bottom_nav_menu);
+            navView.inflateMenu(R .menu.bottom_nav_menu);
         else if (userType==2) // Student
             navView.inflateMenu(R.menu.bottom_nav_menu_student);
 

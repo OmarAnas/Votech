@@ -7,11 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class ThirdFragment extends Fragment {
-    TextView faculty;
-    Button add;
+    Button addgroup;
 
     public ThirdFragment() {
         // Required empty public constructor
@@ -23,7 +23,7 @@ public class ThirdFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view= inflater.inflate(R.layout.fragment_third, container, false);
-
+        addgroup = view.findViewById(R.id.addg);
 
 
         return view;
