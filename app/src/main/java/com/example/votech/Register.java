@@ -79,9 +79,9 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
             public void handleResponse(Integer count) {
                 BackendlessUser user = new BackendlessUser();
 
-                user.setPassword(password.getText().toString());
-                user.setEmail(email.getText().toString());
-                user.setProperty("name", name.getText().toString());
+                user.setPassword(password.getText().toString().trim());
+                user.setEmail(email.getText().toString().trim());
+                user.setProperty("name", name.getText().toString().trim());
                 user.setProperty("FacultyID", facultySpinner.getSelectedItemPosition());
                 user.setProperty("id",count+1);
                 Backendless.UserService.register(user, Register.this);

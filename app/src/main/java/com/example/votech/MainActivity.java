@@ -1,6 +1,8 @@
 package com.example.votech;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -19,11 +21,14 @@ import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
 
 public class MainActivity extends AppCompatActivity implements AsyncCallback<BackendlessUser> {
+     static String UserPassword;
      EditText email,password;
      TextView signup;
      String text = "First time here? Sign Up.";
      SpannableString spannableString = new SpannableString(text);
      boolean isNewActivity=true;
+    SharedPreferences sharedpreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +50,11 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
            startActivity(in);
            this.finish();
        }
+
+       sharedpreferences= this.getSharedPreferences("LoginPrefs", Context.MODE_PRIVATE);
+       email.setText(sharedpreferences.getString("email",""));
+       password.setText(sharedpreferences.getString("password",""));
+
     }
 
     @Override
@@ -70,15 +80,16 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
 
 
     public void Login(View view) {
-        String mail=email.getText().toString();
-        String pass=password.getText().toString();
-        Backendless.UserService.login(mail,pass,this,true);
+        String mail=email.getText().toString().trim();
+        String pass=password.getText().toString().trim();
+        Backendless.UserService.login(mail,pass,this);
     }
 
     @Override
     public void handleResponse(BackendlessUser response) {
         if(isNewActivity)
         {
+            UserPassword=password.getText().toString();
             isNewActivity=false;
             Intent in=new Intent(this,Home.class);
             startActivity(in);

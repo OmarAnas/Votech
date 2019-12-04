@@ -49,7 +49,7 @@ public class ThirdFragment extends Fragment {
     }
 
     public void getstudents() {
-        queryBuilder.setWhereClause("id=" + user.getProperty("FacultyID"));
+        queryBuilder.setWhereClause("FacultyID=" + user.getProperty("FacultyID"));
         ArrayList<String> names = new ArrayList<>();
         Backendless.Data.of(BackendlessUser.class).find(queryBuilder,new AsyncCallback<List<BackendlessUser>>(){
             @Override
