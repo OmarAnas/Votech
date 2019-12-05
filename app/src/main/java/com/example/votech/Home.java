@@ -14,7 +14,6 @@ import com.backendless.Backendless;
 import com.squareup.picasso.Picasso;
 
 public class Home extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
-//    private TextView mTextMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +28,6 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
         else if (userType==2) // Student
             navView.inflateMenu(R.menu.bottom_nav_menu_student);
 
-//        mTextMessage = findViewById(R.id.message);
         navView.setOnNavigationItemSelectedListener(this);
 
         //default fragment for both users

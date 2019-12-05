@@ -1,17 +1,19 @@
 package com.example.votech;
 
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -32,29 +34,29 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ablanco.imageprovider.ImageProvider;
+import com.ablanco.imageprovider.ImageSource;
 import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
+import com.backendless.files.BackendlessFile;
 import com.backendless.persistence.DataQueryBuilder;
 import com.squareup.picasso.Picasso;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static android.app.Activity.RESULT_OK;
-
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class profileFragment extends Fragment implements View.OnClickListener {
 
     CircleImageView profilePic;
-    BackendlessUser user;
+    BackendlessUser backendlessUser;
     TextView name,email,faculty;
-    Button changePass,logout;
+    Button changePassBtn,logout;
     DataQueryBuilder queryBuilder;
     ImageView changeName;
     FloatingActionButton changePic;
@@ -80,24 +82,24 @@ public class profileFragment extends Fragment implements View.OnClickListener {
         sharedpreferences= getActivity().getSharedPreferences("LoginPrefs",Context.MODE_PRIVATE);
         editor = sharedpreferences.edit();
 
-        user=Backendless.UserService.CurrentUser();
+        backendlessUser =Backendless.UserService.CurrentUser();
         profilePic = view.findViewById(R.id.profilePic);
         name=view.findViewById(R.id.nameText);
         email=view.findViewById(R.id.emailText);
         faculty=view.findViewById(R.id.facultyText);
-        changePass=view.findViewById(R.id.changePassword);
+        changePassBtn=view.findViewById(R.id.changePassword);
         logout=view.findViewById(R.id.Logout);
         changeName=view.findViewById(R.id.changeName);
         changePic=view.findViewById(R.id.changePic);
 
         changeName.setOnClickListener(this);
         changePic.setOnClickListener(this);
-        changePass.setOnClickListener(this);
+        changePassBtn.setOnClickListener(this);
         logout.setOnClickListener(this);
 
-        Picasso.get().load(user.getProperty("picture").toString()).into(profilePic);
-        name.setText(user.getProperty("name").toString());
-        email.setText(user.getEmail());
+        Picasso.get().load(backendlessUser.getProperty("picture").toString()).into(profilePic);
+        name.setText(backendlessUser.getProperty("name").toString());
+        email.setText(backendlessUser.getEmail());
         getUserFaculty();
 
 
@@ -111,7 +113,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
 
     public void getUserFaculty()
     {
-        queryBuilder.setWhereClause("id="+user.getProperty("FacultyID"));
+        queryBuilder.setWhereClause("id="+ backendlessUser.getProperty("FacultyID"));
         Backendless.Data.of( Faculty.class ).find( queryBuilder,new AsyncCallback<List<Faculty>>(){
 
         @Override
@@ -146,8 +148,8 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                        @Override
                        public void onClick(DialogInterface dialogInterface, int i) {
-                                user.setProperty("name",changeName.getText().toString().trim());
-                                Backendless.UserService.update(user, new AsyncCallback<BackendlessUser>() {
+                                backendlessUser.setProperty("name",changeName.getText().toString().trim());
+                                Backendless.UserService.update(backendlessUser, new AsyncCallback<BackendlessUser>() {
                                     public void handleResponse(BackendlessUser user) {
                                         name.setText(user.getProperty("name").toString());
                                     }
@@ -247,11 +249,18 @@ public class profileFragment extends Fragment implements View.OnClickListener {
 
                        }
                        else {
-                           user.setPassword(newPass.getText().toString().trim());
-                           Backendless.UserService.update(user, new AsyncCallback<BackendlessUser>() {
+                           backendlessUser.setPassword(newPass.getText().toString().trim());
+                           Backendless.UserService.update(backendlessUser, new AsyncCallback<BackendlessUser>() {
                                public void handleResponse(BackendlessUser user) {
                                    MainActivity.UserPassword=newPass.getText().toString().trim();
                                    Toast.makeText(getActivity(), "Password Changed Successfully", Toast.LENGTH_LONG).show();
+                                   Backendless.UserService.login(user.getEmail(),MainActivity.UserPassword, new AsyncCallback<BackendlessUser>() {
+                                       @Override
+                                       public void handleResponse(BackendlessUser response) { }
+
+                                       @Override
+                                       public void handleFault(BackendlessFault fault) { }
+                                   });
                                }
 
                                public void handleFault(BackendlessFault fault) {
@@ -290,7 +299,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                        @Override
                        public void onClick(DialogInterface dialogInterface, int i) {
                            if(saveData.isChecked()){
-                               editor.putString("email",user.getEmail());
+                               editor.putString("email", backendlessUser.getEmail());
                                editor.putString("password",MainActivity.UserPassword);
                            }
                            else if (!saveData.isChecked())
@@ -326,12 +335,193 @@ public class profileFragment extends Fragment implements View.OnClickListener {
        }
        else if (view.getId()==R.id.changePic)
        {
+           LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
+                   ,LinearLayout.LayoutParams.WRAP_CONTENT);
+
+
+           final TextView gallery = new TextView(getActivity());
+           gallery.setTextColor(Color.WHITE);
+           gallery.setText("Choose From Gallery");
+           gallery.setGravity(Gravity.CENTER_VERTICAL);
+           gallery.setTextSize(15F);
+           gallery.setPadding(20, 50, 20, 50);
+           gallery.setLayoutParams(params);
+           gallery.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                   photoPickerIntent.setType("image/*");
+                   startActivityForResult(photoPickerIntent, 0);
+                   dialog.dismiss();
+               }
+           });
+
+           final TextView camera = new TextView(getActivity());
+           camera.setTextColor(Color.WHITE);
+           camera.setText("Take a Picture");
+           camera.setGravity(Gravity.CENTER_VERTICAL);
+           camera.setTextSize(15F);
+           camera.setPadding(20, 50, 20, 50);
+           camera.setLayoutParams(params);
+           camera.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view)
+               {
+                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                     if (getActivity().checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+                           requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
+               else
+               {
+                   Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                   startActivityForResult(cameraIntent, 1);
+               }
+           }
+           else
+           {
+               Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+               startActivityForResult(cameraIntent, 1);
+           }
+           dialog.dismiss();
+               }
+           });
+
+           final TextView remove = new TextView(getActivity());
+           remove.setTextColor(Color.WHITE);
+           remove.setText("Remove Current Picture");
+           remove.setGravity(Gravity.CENTER_VERTICAL);
+           remove.setTextSize(15F);
+           remove.setPadding(20, 50, 20, 50);
+           remove.setLayoutParams(params);
+           remove.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   backendlessUser.setProperty("picture", "https://backendlessappcontent.com/B808DB02-5530-3A99-FFE3-39A739A3D500/2E1C56A2-CA5C-4252-968D-DBE4A881AEEF/files/pictures/default-profile-picture1.jpg");
+                   Backendless.UserService.update(backendlessUser, new AsyncCallback<BackendlessUser>() {
+                       public void handleResponse(BackendlessUser user) {
+                           dialog.dismiss();
+                           Picasso.get().load(backendlessUser.getProperty("picture").toString()).into(profilePic);
+                       }
+
+                       public void handleFault(BackendlessFault fault) {
+                           Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+                       }
+                   });
+               }
+           });
+
+           LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
+                   ,LinearLayout.LayoutParams.MATCH_PARENT);
+           LinearLayout linearLayout= new LinearLayout(getActivity());
+           linearLayout.setLayoutParams(params2);
+           linearLayout.addView(gallery);
+           linearLayout.addView(camera);
+           linearLayout.addView(remove);
+           linearLayout.setOrientation(LinearLayout.VERTICAL);
+
+           TextView title = new TextView(getActivity());
+           title.setPadding(20, 30, 20, 30);
+           title.setTextSize(20F);
+           title.setText("Upload a new Picture");
+           title.setTextColor(Color.WHITE);
+           dialogBuilder.setView(linearLayout).setCustomTitle(title);
+           dialog = dialogBuilder.create();
+           dialog.show();
+
+
 
        }
     }
 
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 100)
+        {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cameraIntent, 1);
+            }
+            else
+            {
+                Toast.makeText(getActivity(), "Camera Permission Denied", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+         if (requestCode==0 && resultCode==getActivity().RESULT_OK)
+        {
+                try {
+                    final Uri imageUri = data.getData();
+                    final InputStream imageStream = getActivity().getContentResolver().openInputStream(imageUri);
+                    final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+
+                    Backendless.Files.Android.upload(selectedImage, Bitmap.CompressFormat.JPEG, 30
+                            , backendlessUser.getUserId()+ Calendar.getInstance().getTimeInMillis(), "pictures", new AsyncCallback<BackendlessFile>() {
+                                @Override
+                                public void handleResponse(BackendlessFile response) {
+                                    profilePic.setImageBitmap(selectedImage);
+                                    backendlessUser.setProperty("picture", response.getFileURL());
+                                    Backendless.UserService.update(backendlessUser, new AsyncCallback<BackendlessUser>() {
+                                        public void handleResponse(BackendlessUser user) {
+
+                                        }
+
+                                        public void handleFault(BackendlessFault fault) {
+                                            Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void handleFault(BackendlessFault fault) {
+                                    Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+                            });
+//
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
+                }
+        }
+         else if (requestCode==1 && resultCode==getActivity().RESULT_OK)
+         {
+             final Bitmap takenPic= (Bitmap) data.getExtras().get("data");
+
+             Backendless.Files.Android.upload(takenPic, Bitmap.CompressFormat.JPEG, 30
+                     , backendlessUser.getUserId()+ Calendar.getInstance().getTimeInMillis(), "pictures", new AsyncCallback<BackendlessFile>() {
+                         @Override
+                         public void handleResponse(BackendlessFile response) {
+                             profilePic.setImageBitmap(takenPic);
+                             backendlessUser.setProperty("picture", response.getFileURL());
+                             Backendless.UserService.update(backendlessUser, new AsyncCallback<BackendlessUser>() {
+                                 public void handleResponse(BackendlessUser user) {
+
+                                 }
+
+                                 public void handleFault(BackendlessFault fault) {
+                                     Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+                                 }
+                             });
+                         }
+
+                         @Override
+                         public void handleFault(BackendlessFault fault) {
+                             Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_LONG).show();
+                         }
+                     });
+
+         }
+//        else
+//            Toast.makeText(getActivity(), "You haven't picked Image",Toast.LENGTH_LONG).show();
+
+    }
 }
 
 
