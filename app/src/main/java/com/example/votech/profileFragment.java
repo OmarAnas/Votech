@@ -3,6 +3,7 @@ package com.example.votech;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -368,19 +369,37 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                public void onClick(View view)
                {
                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                     if (getActivity().checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+                   if (getActivity().checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
                            requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
                else
                {
-                   Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                   startActivityForResult(cameraIntent, 1);
+                   try {
+                       Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                       startActivityForResult(cameraIntent, 1);
+
+                   }catch (ActivityNotFoundException ae)
+                   {
+                       Toast.makeText(getActivity(), "Your SmartPhone seems not", Toast.LENGTH_SHORT).show();
+                       Toast.makeText(getActivity(), "Camera is not supported", Toast.LENGTH_LONG).show();
+
+                   }
                }
            }
            else
            {
+           try {
                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                startActivityForResult(cameraIntent, 1);
+
+           }catch (ActivityNotFoundException ae)
+           {
+               Toast.makeText(getActivity(), "Your SmartPhone seems not", Toast.LENGTH_SHORT).show();
+               Toast.makeText(getActivity(), "Camera is not supported", Toast.LENGTH_LONG).show();
+
            }
+
+           }
+
            dialog.dismiss();
                }
            });

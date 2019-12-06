@@ -5,7 +5,9 @@ import android.graphics.Color;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -26,9 +28,14 @@ import java.util.List;
 
 public class Register extends AppCompatActivity implements AsyncCallback<BackendlessUser>  {
     EditText name, email, password, confirmpassword;
-    Spinner facultySpinner;
+    Spinner facultySpinner , groupsSpinner;
     DataQueryBuilder dataQuery = DataQueryBuilder.create();
     boolean isRegistered=false;
+    int groupID;
+    ArrayList<String> faculties = new ArrayList<>();
+    ArrayList<String> groups = new ArrayList<>();
+    ArrayAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +49,60 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
         password = findViewById(R.id.password);
         confirmpassword = findViewById(R.id.password2);
         facultySpinner = findViewById(R.id.facultyText);
+        groupsSpinner= findViewById(R.id.groupSpinner);
+
+        faculties.add("Select Your Faculty...");
+        adapter = new ArrayAdapter(Register.this, R.layout.spinner_item, faculties){
+            @Override
+            public boolean isEnabled(int position){
+                if(position == 0)
+                    return false;
+                else
+                    return true;
+            }
+            @Override
+            public View getDropDownView(int position, View convertView,ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if(position == 0){
+                    // Set the hint text color gray
+                    tv.setTextColor(Color.parseColor("#646873"));
+                }
+                else {
+                    tv.setTextColor(Color.BLACK);
+                }
+                return view;
+            }
+        };
+        facultySpinner.setAdapter(adapter);
 
         getFaculties();
+
+        groups.add("Select Your Group...");
+        adapter = new ArrayAdapter(Register.this, R.layout.spinner_item, groups){
+            @Override
+            public boolean isEnabled(int position){
+                if(position == 0)
+                    return false;
+                else
+                    return true;
+            }
+            @Override
+            public View getDropDownView(int position, View convertView,ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if(position == 0){
+                    // Set the hint text color gray
+                    tv.setTextColor(Color.parseColor("#646873"));
+                }
+                else {
+                    tv.setTextColor(Color.BLACK);
+                }
+                return view;
+            }
+        };
+        groupsSpinner.setAdapter(adapter);
+        groupsSpinner.setEnabled(false);
 
         facultySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -51,8 +110,39 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
                 TextView tv = (TextView) view;
                 if(i==0)
                     tv.setTextColor(Color.parseColor("#646873"));
-                else
-                tv.setTextColor(Color.WHITE);
+                else {
+                    groupsSpinner.setEnabled(true);
+                    tv.setTextColor(Color.WHITE);
+                    getGroups(i);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        groupsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                TextView tv = (TextView) view;
+                if(i==0)
+                    tv.setTextColor(Color.parseColor("#646873"));
+                else {
+                    tv.setTextColor(Color.WHITE);
+
+                    Backendless.Data.of(groups.class).find(dataQuery.setWhereClause("Name= '" + tv.getText().toString()+"'"), new AsyncCallback<List<groups>>() {
+                        @Override
+                        public void handleResponse(List<groups> response) {
+                            groupID=response.get(0).getId();
+                        }
+
+                        @Override
+                        public void handleFault(BackendlessFault fault) {
+                        }
+                    });
+                }
             }
 
             @Override
@@ -72,6 +162,8 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
             Toast.makeText(Register.this, "Passwords don't match", Toast.LENGTH_LONG).show();
         else if (facultySpinner.getSelectedItemPosition()==0)
             Toast.makeText(Register.this, "Please Select your Faculty", Toast.LENGTH_LONG).show();
+        else if (groupsSpinner.getSelectedItemPosition()==0)
+            Toast.makeText(Register.this, "Please Select your Group", Toast.LENGTH_LONG).show();
         else
         Backendless.Data.of(BackendlessUser.class).getObjectCount(new AsyncCallback<Integer>()
         {
@@ -83,6 +175,8 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
                 user.setEmail(email.getText().toString().trim());
                 user.setProperty("name", name.getText().toString().trim());
                 user.setProperty("FacultyID", facultySpinner.getSelectedItemPosition());
+                user.setProperty("groupID",groupID);
+
                 user.setProperty("id",count+1);
                 Backendless.UserService.register(user, Register.this);
             }
@@ -140,14 +234,12 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
     public void getFaculties() {
 
         Backendless.Data.of(Faculty.class).find(dataQuery.setSortBy("id"), new AsyncCallback<List<Faculty>>() {
-            ArrayList<String> names = new ArrayList<>();
             @Override
             public void handleResponse(List<Faculty> faculty) {
-                 names.add("Select Your Faculty...");
                 for (int i = 0; i < faculty.size(); i++)
-                    names.add(faculty.get(i).getName());
+                    faculties.add(faculty.get(i).getName());
 
-                ArrayAdapter adapter = new ArrayAdapter(Register.this, R.layout.spinner_item, names){
+                ArrayAdapter adapter = new ArrayAdapter(Register.this, R.layout.spinner_item, faculties){
                     @Override
                     public boolean isEnabled(int position){
                         if(position == 0)
@@ -170,6 +262,46 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
                     }
                 };
                 facultySpinner.setAdapter(adapter);
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Toast.makeText(Register.this, "" + fault.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public void getGroups(int FacultyID) {
+
+        Backendless.Data.of(groups.class).find(dataQuery.setWhereClause("FacultyID ="+FacultyID).setSortBy("id DESC"), new AsyncCallback<List<groups>>() {
+            @Override
+            public void handleResponse(List<groups> groupsList) {
+                for (int i = 0; i < groupsList.size(); i++)
+                    groups.add(groupsList.get(i).getName());
+
+                ArrayAdapter adapter = new ArrayAdapter(Register.this, R.layout.spinner_item, groups){
+                    @Override
+                    public boolean isEnabled(int position){
+                        if(position == 0)
+                            return false;
+                        else
+                            return true;
+                    }
+                    @Override
+                    public View getDropDownView(int position, View convertView,ViewGroup parent) {
+                        View view = super.getDropDownView(position, convertView, parent);
+                        TextView tv = (TextView) view;
+                        if(position == 0){
+                            // Set the hint text color gray
+                            tv.setTextColor(Color.parseColor("#646873"));
+                        }
+                        else {
+                            tv.setTextColor(Color.BLACK);
+                        }
+                        return view;
+                    }
+                };
+                groupsSpinner.setAdapter(adapter);
             }
 
             @Override
