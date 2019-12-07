@@ -47,11 +47,11 @@ public class Home extends AppCompatActivity implements BottomNavigationView.OnNa
             SecondFragment fragment = new SecondFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragment).commit();
         }
-        else if (menuItem.getItemId()==R.id.navigation_notifications)
-        {
-            ThirdFragment fragment = new ThirdFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragment).commit();
-        }
+//        else if (menuItem.getItemId()==R.id.navigation_notifications)
+//        {
+//            ThirdFragment fragment = new ThirdFragment();
+//            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout,fragment).commit();
+//        }
         else if (menuItem.getItemId()==R.id.navigation_profile)
         {
             profileFragment fragment = new profileFragment();
