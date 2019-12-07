@@ -17,6 +17,9 @@ public class Polls
   private String Title;
   private Integer totalVotes;
   private String Description;
+  private Integer Yes;
+  private Integer No;
+  private Integer Neutral;
   private Date startDate;
   private Date updated;
   private String objectId;
@@ -61,6 +64,36 @@ public class Polls
   public void setDescription( String Description )
   {
     this.Description = Description;
+  }
+
+  public Integer getYes()
+  {
+    return Yes;
+  }
+
+  public void setYes( Integer Yes )
+  {
+    this.Yes = Yes;
+  }
+
+  public Integer getNo()
+  {
+    return No;
+  }
+
+  public void setNo( Integer No )
+  {
+    this.No = No;
+  }
+
+  public Integer getNeutral()
+  {
+    return Neutral;
+  }
+
+  public void setNeutral( Integer Neutral )
+  {
+    this.Neutral = Neutral;
   }
 
   public Date getStartDate()
