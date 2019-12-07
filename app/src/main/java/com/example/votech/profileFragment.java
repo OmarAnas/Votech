@@ -155,6 +155,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                                         name.setText(user.getProperty("name").toString());
                                     }
 
+
                                     public void handleFault(BackendlessFault fault) {
                                         Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
@@ -279,6 +280,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
            dialog = dialogBuilder.create();
            dialog.show();
        }
+
        else if (view.getId()==R.id.Logout)
        {
            final CheckBox saveData = new CheckBox(getActivity());
