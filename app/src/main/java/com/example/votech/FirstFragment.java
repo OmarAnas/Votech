@@ -1,6 +1,7 @@
 package com.example.votech;
 
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -30,7 +31,7 @@ import java.util.Locale;
 public class FirstFragment extends Fragment {
 
     ListView pollsList;
-    ArrayList<String> pollsTitle = new ArrayList<>();
+    ArrayList<Polls> polls = new ArrayList<>();
     ArrayList<Integer> Pollids = new ArrayList<>();
     DataQueryBuilder dataQuery = DataQueryBuilder.create();
     String date;
@@ -63,8 +64,10 @@ public class FirstFragment extends Fragment {
        pollsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
            @Override
            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//               Toast.makeText(getActivity(), , Toast.LENGTH_SHORT).show();
-
+               Polls p = (Polls)pollsList.getItemAtPosition(i);
+               Intent in = new Intent(getActivity(),pollVote.class);
+               in.putExtra("pollID",p.getId().toString());
+               startActivity(in);
            }
        });
 
@@ -80,15 +83,16 @@ public class FirstFragment extends Fragment {
             @Override
             public void handleResponse(List<Polls> response) {
                 for (int i=0;i<response.size();i++){
-                    pollsTitle.add(response.get(i).getTitle());
+                    polls.add(response.get(i));
                 }
-                adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, pollsTitle){
+                adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, polls){
                     @Override
                     public View getView(int position,  View convertView, ViewGroup parent) {
                         View view= super.getView(position, convertView, parent);
 
                         view.setBackground(getActivity().getResources().getDrawable(R.drawable.list_view_item));
                         TextView textView=(TextView) view.findViewById(android.R.id.text1);
+                        textView.setText(polls.get(position).getTitle());
                         textView.setTextColor(Color.WHITE);
                         textView.setTextSize(20F);
                         return view;
@@ -119,15 +123,16 @@ public class FirstFragment extends Fragment {
             @Override
             public void handleResponse(List<Polls> response) {
                 for (int i=0;i<response.size();i++){
-                   pollsTitle.add(response.get(i).getTitle());
+                   polls.add(response.get(i));
                }
-                adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, pollsTitle){
+                adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, polls){
                     @Override
                     public View getView(int position,  View convertView, ViewGroup parent) {
                         View view= super.getView(position, convertView, parent);
 
                         view.setBackground(getActivity().getResources().getDrawable(R.drawable.list_view_item));
                         TextView textView=(TextView) view.findViewById(android.R.id.text1);
+                        textView.setText(polls.get(position).getTitle());
                         textView.setTextColor(Color.WHITE);
                         textView.setTextSize(20F);
                         return view;
