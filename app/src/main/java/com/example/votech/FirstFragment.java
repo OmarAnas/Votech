@@ -1,6 +1,7 @@
 package com.example.votech;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -39,10 +40,16 @@ public class FirstFragment extends Fragment {
     int groupID;
     int UserID;
     int userType;
+    Context mContext;
     public FirstFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext=context;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -65,7 +72,7 @@ public class FirstFragment extends Fragment {
            @Override
            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                Polls p = (Polls)pollsList.getItemAtPosition(i);
-               Intent in = new Intent(getActivity(),pollVote.class);
+               Intent in = new Intent(mContext,pollVote.class);
                in.putExtra("pollID",p.getId().toString());
                startActivity(in);
            }
@@ -85,12 +92,12 @@ public class FirstFragment extends Fragment {
                 for (int i=0;i<response.size();i++){
                     polls.add(response.get(i));
                 }
-                adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, polls){
+                adapter = new ArrayAdapter(mContext, android.R.layout.simple_list_item_1, polls){
                     @Override
                     public View getView(int position,  View convertView, ViewGroup parent) {
                         View view= super.getView(position, convertView, parent);
 
-                        view.setBackground(getActivity().getResources().getDrawable(R.drawable.list_view_item));
+                        view.setBackground(mContext.getResources().getDrawable(R.drawable.list_view_item));
                         TextView textView=(TextView) view.findViewById(android.R.id.text1);
                         textView.setText(polls.get(position).getTitle());
                         textView.setTextColor(Color.WHITE);
@@ -102,7 +109,7 @@ public class FirstFragment extends Fragment {
             }
             @Override
             public void handleFault(BackendlessFault fault) {
-                Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -118,33 +125,37 @@ public class FirstFragment extends Fragment {
         dataQuery.setWhereClause("endDate > '"+date+"'");
         dataQuery.setWhereClause("id IN ("+concatIds+")");
         dataQuery.setSortBy("startDate DESC");
-        Backendless.Data.of(Polls.class).find(new AsyncCallback<List<Polls>>() {
+
+
+
+            Backendless.Data.of(Polls.class).find(new AsyncCallback<List<Polls>>() {
             @Override
             public void handleResponse(List<Polls> response) {
                 for (int i=0;i<response.size();i++){
                    polls.add(response.get(i));
                }
-                adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1, polls){
+                adapter = new ArrayAdapter(mContext,android.R.layout.simple_list_item_1, polls){
                     @Override
                     public View getView(int position,  View convertView, ViewGroup parent) {
                         View view= super.getView(position, convertView, parent);
 
-                        view.setBackground(getActivity().getResources().getDrawable(R.drawable.list_view_item));
+                        view.setBackground(mContext.getResources().getDrawable(R.drawable.list_view_item));
                         TextView textView=(TextView) view.findViewById(android.R.id.text1);
                         textView.setText(polls.get(position).getTitle());
                         textView.setTextColor(Color.WHITE);
                         textView.setTextSize(20F);
                         return view;
                     }
-                };;
+                };
                pollsList.setAdapter(adapter);
             }
             @Override
             public void handleFault(BackendlessFault fault) {
-                Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
     public void getPollsGroups()
     {
        Backendless.Data.of(PollGroups.class).find(dataQuery.setWhereClause("groupID = "+groupID),new AsyncCallback<List<PollGroups>>() {
@@ -157,7 +168,7 @@ public class FirstFragment extends Fragment {
            }
            @Override
            public void handleFault(BackendlessFault fault) {
-               Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+               Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
            }
        });
    }

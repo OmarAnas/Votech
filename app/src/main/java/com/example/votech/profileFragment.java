@@ -66,21 +66,26 @@ public class profileFragment extends Fragment implements View.OnClickListener {
 
     SharedPreferences sharedpreferences;
     SharedPreferences.Editor editor;
-
+    Context mContext;
 
     public profileFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext=context;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view= inflater.inflate(R.layout.fragment_profile, container, false);
 
         queryBuilder = DataQueryBuilder.create();
-        dialogBuilder= new AlertDialog.Builder(getActivity() , R.style.MyDialogTheme);
+        dialogBuilder= new AlertDialog.Builder(mContext , R.style.MyDialogTheme);
 
-        sharedpreferences= getActivity().getSharedPreferences("LoginPrefs",Context.MODE_PRIVATE);
+        sharedpreferences= mContext.getSharedPreferences("LoginPrefs",Context.MODE_PRIVATE);
         editor = sharedpreferences.edit();
 
         backendlessUser =Backendless.UserService.CurrentUser();
@@ -125,7 +130,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
         @Override
         public void handleFault( BackendlessFault fault )
         {
-            Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
         }
     });
     }
@@ -135,11 +140,11 @@ public class profileFragment extends Fragment implements View.OnClickListener {
 
        if (view.getId()==R.id.changeName)
        {
-           final EditText changeName = new EditText(getActivity());
+           final EditText changeName = new EditText(mContext);
            changeName.setTextColor(Color.WHITE);
            changeName.setHint("New Name");
            changeName.setHintTextColor(Color.parseColor("#646873"));
-           TextView title = new TextView(getActivity());
+           TextView title = new TextView(mContext);
            title.setPadding(20, 30, 20, 30);
            title.setTextSize(20F);
            title.setText("Change Your Name");
@@ -157,7 +162,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
 
 
                                     public void handleFault(BackendlessFault fault) {
-                                        Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
                        }
@@ -193,7 +198,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
        {
            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
                                                                              ,LinearLayout.LayoutParams.WRAP_CONTENT);
-           final EditText oldPass = new EditText(getActivity());
+           final EditText oldPass = new EditText(mContext);
 
            oldPass.setInputType(InputType.TYPE_CLASS_TEXT| InputType.TYPE_TEXT_VARIATION_PASSWORD);
            oldPass.setTextColor(Color.WHITE);
@@ -201,14 +206,14 @@ public class profileFragment extends Fragment implements View.OnClickListener {
            oldPass.setHintTextColor(Color.parseColor("#646873"));
            oldPass.setLayoutParams(params);
 
-           final EditText newPass = new EditText(getActivity());
+           final EditText newPass = new EditText(mContext);
            newPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
            newPass.setTextColor(Color.WHITE);
            newPass.setHint("New Password");
            newPass.setHintTextColor(Color.parseColor("#646873"));
            newPass.setLayoutParams(params);
 
-           final EditText ConfirmnewPass = new EditText(getActivity());
+           final EditText ConfirmnewPass = new EditText(mContext);
            ConfirmnewPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
            ConfirmnewPass.setTextColor(Color.WHITE);
            ConfirmnewPass.setHint("Confirm New Password");
@@ -218,14 +223,14 @@ public class profileFragment extends Fragment implements View.OnClickListener {
 
            LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
                    ,LinearLayout.LayoutParams.MATCH_PARENT);
-           LinearLayout linearLayout= new LinearLayout(getActivity());
+           LinearLayout linearLayout= new LinearLayout(mContext);
            linearLayout.setLayoutParams(params2);
            linearLayout.addView(oldPass);
            linearLayout.addView(newPass);
            linearLayout.addView(ConfirmnewPass);
            linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-           TextView title = new TextView(getActivity());
+           TextView title = new TextView(mContext);
            title.setPadding(20, 30, 20, 30);
            title.setTextSize(20F);
            title.setText("Change Your Password");
@@ -239,15 +244,15 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                        if(!(MainActivity.UserPassword.equals(oldPass.getText().toString())))
                        {
                             Log.i("pass",oldPass.getText().toString());
-                           Toast.makeText(getActivity(), "Entered old password doesn't match your password ", Toast.LENGTH_LONG).show();
+                           Toast.makeText(mContext, "Entered old password doesn't match your password ", Toast.LENGTH_LONG).show();
                        }
                        else if (!(newPass.getText().toString().equals(ConfirmnewPass.getText().toString())))
                        {
-                           Toast.makeText(getActivity(), "New Passwords don't match", Toast.LENGTH_LONG).show();
+                           Toast.makeText(mContext, "New Passwords don't match", Toast.LENGTH_LONG).show();
                        }
                        else if(oldPass.getText().toString().equals("") ||
                                newPass.getText().toString().equals("") || ConfirmnewPass.getText().toString().equals("")) {
-                           Toast.makeText(getActivity(), "Fill all fields", Toast.LENGTH_LONG).show();
+                           Toast.makeText(mContext, "Fill all fields", Toast.LENGTH_LONG).show();
 
                        }
                        else {
@@ -255,7 +260,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                            Backendless.UserService.update(backendlessUser, new AsyncCallback<BackendlessUser>() {
                                public void handleResponse(BackendlessUser user) {
                                    MainActivity.UserPassword=newPass.getText().toString().trim();
-                                   Toast.makeText(getActivity(), "Password Changed Successfully", Toast.LENGTH_LONG).show();
+                                   Toast.makeText(mContext, "Password Changed Successfully", Toast.LENGTH_LONG).show();
                                    Backendless.UserService.login(user.getEmail(),MainActivity.UserPassword, new AsyncCallback<BackendlessUser>() {
                                        @Override
                                        public void handleResponse(BackendlessUser response) { }
@@ -266,7 +271,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                                }
 
                                public void handleFault(BackendlessFault fault) {
-                                   Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_LONG).show();
+                                   Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_LONG).show();
                                }
                            });
                        }
@@ -283,7 +288,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
 
        else if (view.getId()==R.id.Logout)
        {
-           final CheckBox saveData = new CheckBox(getActivity());
+           final CheckBox saveData = new CheckBox(mContext);
            saveData.setTextColor(Color.WHITE);
            saveData.setText("Save Login Info for next time? ");
            saveData.setGravity(Gravity.CENTER_VERTICAL);
@@ -291,7 +296,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
            saveData.setTextSize(15F);
            saveData.setChecked(true);
 
-           TextView title = new TextView(getActivity());
+           TextView title = new TextView(mContext);
            title.setPadding(20, 30, 20, 30);
            title.setTextSize(20F);
            title.setText("Logout");
@@ -315,14 +320,14 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                            {
                                public void handleResponse( Void response )
                                {
-                                   Intent in = new Intent(getActivity(),MainActivity.class);
+                                   Intent in = new Intent(mContext,MainActivity.class);
                                    startActivity(in);
                                    getActivity().finish();
                                }
 
                                public void handleFault( BackendlessFault fault )
                                {
-                                   Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_LONG).show();
+                                   Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_LONG).show();
                                }
                            });
                        }
@@ -342,7 +347,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                    ,LinearLayout.LayoutParams.WRAP_CONTENT);
 
 
-           final TextView gallery = new TextView(getActivity());
+           final TextView gallery = new TextView(mContext);
            gallery.setTextColor(Color.WHITE);
            gallery.setText("Choose From Gallery");
            gallery.setGravity(Gravity.CENTER_VERTICAL);
@@ -359,7 +364,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                }
            });
 
-           final TextView camera = new TextView(getActivity());
+           final TextView camera = new TextView(mContext);
            camera.setTextColor(Color.WHITE);
            camera.setText("Take a Picture");
            camera.setGravity(Gravity.CENTER_VERTICAL);
@@ -371,7 +376,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                public void onClick(View view)
                {
                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                   if (getActivity().checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+                   if (mContext.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
                            requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
                else
                {
@@ -381,8 +386,8 @@ public class profileFragment extends Fragment implements View.OnClickListener {
 
                    }catch (ActivityNotFoundException ae)
                    {
-                       Toast.makeText(getActivity(), "Your SmartPhone seems not", Toast.LENGTH_SHORT).show();
-                       Toast.makeText(getActivity(), "Camera is not supported", Toast.LENGTH_LONG).show();
+                       Toast.makeText(mContext, "Your SmartPhone seems not", Toast.LENGTH_SHORT).show();
+                       Toast.makeText(mContext, "Camera is not supported", Toast.LENGTH_LONG).show();
 
                    }
                }
@@ -395,8 +400,8 @@ public class profileFragment extends Fragment implements View.OnClickListener {
 
            }catch (ActivityNotFoundException ae)
            {
-               Toast.makeText(getActivity(), "Your SmartPhone seems not", Toast.LENGTH_SHORT).show();
-               Toast.makeText(getActivity(), "Camera is not supported", Toast.LENGTH_LONG).show();
+               Toast.makeText(mContext, "Your SmartPhone seems not", Toast.LENGTH_SHORT).show();
+               Toast.makeText(mContext, "Camera is not supported", Toast.LENGTH_LONG).show();
 
            }
 
@@ -406,7 +411,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                }
            });
 
-           final TextView remove = new TextView(getActivity());
+           final TextView remove = new TextView(mContext);
            remove.setTextColor(Color.WHITE);
            remove.setText("Remove Current Picture");
            remove.setGravity(Gravity.CENTER_VERTICAL);
@@ -424,7 +429,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                        }
 
                        public void handleFault(BackendlessFault fault) {
-                           Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+                           Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
                        }
                    });
                }
@@ -432,14 +437,14 @@ public class profileFragment extends Fragment implements View.OnClickListener {
 
            LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
                    ,LinearLayout.LayoutParams.MATCH_PARENT);
-           LinearLayout linearLayout= new LinearLayout(getActivity());
+           LinearLayout linearLayout= new LinearLayout(mContext);
            linearLayout.setLayoutParams(params2);
            linearLayout.addView(gallery);
            linearLayout.addView(camera);
            linearLayout.addView(remove);
            linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-           TextView title = new TextView(getActivity());
+           TextView title = new TextView(mContext);
            title.setPadding(20, 30, 20, 30);
            title.setTextSize(20F);
            title.setText("Upload a new Picture");
@@ -467,7 +472,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
             }
             else
             {
-                Toast.makeText(getActivity(), "Camera Permission Denied", Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext, "Camera Permission Denied", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -480,7 +485,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
         {
                 try {
                     final Uri imageUri = data.getData();
-                    final InputStream imageStream = getActivity().getContentResolver().openInputStream(imageUri);
+                    final InputStream imageStream = mContext.getContentResolver().openInputStream(imageUri);
                     final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
 
                     Backendless.Files.Android.upload(selectedImage, Bitmap.CompressFormat.JPEG, 30
@@ -495,20 +500,20 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                                         }
 
                                         public void handleFault(BackendlessFault fault) {
-                                            Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
                                         }
                                     });
                                 }
 
                                 @Override
                                 public void handleFault(BackendlessFault fault) {
-                                    Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             });
 //
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    Toast.makeText(getActivity(), "Something went wrong", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, "Something went wrong", Toast.LENGTH_LONG).show();
                 }
         }
          else if (requestCode==1 && resultCode==getActivity().RESULT_OK)
@@ -527,14 +532,14 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                                  }
 
                                  public void handleFault(BackendlessFault fault) {
-                                     Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_SHORT).show();
+                                     Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
                                  }
                              });
                          }
 
                          @Override
                          public void handleFault(BackendlessFault fault) {
-                             Toast.makeText(getActivity(), fault.getMessage(), Toast.LENGTH_LONG).show();
+                             Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_LONG).show();
                          }
                      });
 

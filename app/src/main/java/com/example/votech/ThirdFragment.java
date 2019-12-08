@@ -2,6 +2,7 @@ package com.example.votech;
 
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -34,10 +35,18 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
     EditText groupname;
     AlertDialog dialog;
     AlertDialog.Builder dialogBuilder ;
+    Context mContext;
+    int instructorFacultyID ;
+
     public ThirdFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext=context;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,7 +60,8 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
         groupname = view.findViewById(R.id.group);
         //list = view.findViewById(R.id.Studentlist);
         user=Backendless.UserService.CurrentUser();
-        dialogBuilder= new AlertDialog.Builder(getActivity() , R.style.MyDialogTheme);
+        instructorFacultyID=Integer.parseInt(user.getProperty("FacultyID").toString());
+        dialogBuilder= new AlertDialog.Builder(mContext , R.style.MyDialogTheme);
 
        //getstudents();
         return view;
@@ -83,14 +93,14 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View view) {
         if (groupname.getText().toString().equals(""))
-            Toast.makeText(getActivity(), "group name is missing", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext, "group name is missing", Toast.LENGTH_LONG).show();
         else {
-            TextView question = new TextView(getActivity());
+            TextView question = new TextView(mContext);
             question.setText("Are you sure you ?");
             question.setTextColor(Color.WHITE);
             question.setPadding(50, 30, 20, 30);
 
-            TextView title = new TextView(getActivity());
+            TextView title = new TextView(mContext);
             title.setPadding(20, 30, 20, 30);
             title.setTextSize(20F);
             title.setText("Confirm group");
@@ -114,17 +124,21 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
                                 public void handleResponse(Integer response) {
                                     groups g = new groups();
                                     g.setName(groupname.getText().toString());
-                                    g.setFacultyID(3);
+                                    g.setFacultyID(instructorFacultyID);
                                     g.setId(response+1);
                                     Backendless.Persistence.save( g, new AsyncCallback<groups>() {
                                         @Override
                                         public void handleResponse(groups response) {
-
+                                            Toast.makeText(mContext,"Group Added",Toast.LENGTH_LONG).show();
+                                            groupname.setText("");
                                         }
 
                                         @Override
                                         public void handleFault(BackendlessFault fault) {
-                                         Toast.makeText(getActivity(),fault.getMessage(),Toast.LENGTH_LONG);
+                                            if(fault.getCode().equals("1155"))
+                                                Toast.makeText(mContext, "Group Already exists", Toast.LENGTH_LONG).show();
+                                            else
+                                             Toast.makeText(mContext,fault.getMessage()+" "+fault.getCode(),Toast.LENGTH_LONG).show();
                                         }
                                     });
 
@@ -132,7 +146,7 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
 
                                 @Override
                                 public void handleFault(BackendlessFault fault) {
-                                    Toast.makeText(getActivity(),fault.getMessage(),Toast.LENGTH_LONG);
+                                    Toast.makeText(mContext,fault.getMessage(),Toast.LENGTH_LONG).show();
 
                                 }
 
@@ -142,8 +156,9 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
 
 
                     });
+            dialog = dialogBuilder.create();
+            dialog.show();
         }
-        dialog = dialogBuilder.create();
-        dialog.show();
+
     }
 }

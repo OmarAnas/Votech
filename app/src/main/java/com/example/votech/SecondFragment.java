@@ -1,9 +1,11 @@
 package com.example.votech;
 
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,15 +42,23 @@ public class SecondFragment extends Fragment{
     ArrayAdapter adapter;
     BackendlessUser user = Backendless.UserService.CurrentUser();
     int currentUserId = Integer.parseInt(user.getProperty("id").toString());
+    int instructorFacultyID= Integer.parseInt(user.getProperty("FacultyID").toString());
+
     DateFormat formatter = new SimpleDateFormat("mm/dd/yyyy");
     Date stDate; //start date
     Date enDate; //end date
     int newPollId;
     int selectedGroupId;
+    Context mContext;
     public SecondFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext=context;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -134,7 +144,7 @@ public class SecondFragment extends Fragment{
                     poll.setTitle(title.getText().toString());
                     poll.setDescription(desc.getText().toString());
                     poll.setId(newPollId);
-                    poll.setInstructorID(Integer.parseInt(user.getProperty("id").toString()));
+                    poll.setInstructorID(currentUserId);
                     try {
                         stDate = formatter.parse(startDate.getText().toString());
                         enDate = formatter.parse(endDate.getText().toString());
@@ -189,13 +199,14 @@ public class SecondFragment extends Fragment{
     }
     public void getGroups() {
 
-        Backendless.Data.of(groups.class).find(queryBuilder.setWhereClause("FacultyID=" + currentUserId).setSortBy("id DESC"), new AsyncCallback<List<groups>>() {
+        Backendless.Data.of(groups.class).find(queryBuilder.setWhereClause("FacultyID=" + instructorFacultyID).setSortBy("id DESC"), new AsyncCallback<List<groups>>() {
             @Override
             public void handleResponse(List<groups> groupsList) {
                 for (int i = 0; i < groupsList.size(); i++)
                     groups.add(groupsList.get(i).getName());
 
-                ArrayAdapter adapter = new ArrayAdapter(getContext(), R.layout.spinner_item, groups){
+                Log.i("Error",groups.get(0));
+                ArrayAdapter adapter = new ArrayAdapter(mContext, R.layout.spinner_item, groups){
                     @Override
                     public boolean isEnabled(int position){
                         if(position == 0)
