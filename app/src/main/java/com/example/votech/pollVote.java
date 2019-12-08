@@ -14,7 +14,9 @@ import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
 import com.backendless.persistence.DataQueryBuilder;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class pollVote extends AppCompatActivity {
 
@@ -48,6 +50,12 @@ public class pollVote extends AppCompatActivity {
             public void handleResponse(List<Polls> poll) {
                 title.setText(poll.get(0).getTitle());
                 description.setText(poll.get(0).getDescription());
+                p.setTitle(poll.get(0).getTitle());
+                p.setDescription(poll.get(0).getDescription());
+                p.setId(pollId);
+                p.setInstructorID(poll.get(0).getInstructorID());
+                p.setStartDate(poll.get(0).getStartDate());
+                p.setEndDate(poll.get(0).getEndDate());
             }
 
             @Override
@@ -105,17 +113,6 @@ public class pollVote extends AppCompatActivity {
         });
         if (buttonId == R.id.Yes)
         {
-            final AsyncCallback<Polls> updateResponder = new AsyncCallback<Polls>() {
-                @Override
-                public void handleResponse(Polls response) {
-
-                }
-
-                @Override
-                public void handleFault(BackendlessFault fault) {
-
-                }
-            };
             Backendless.Data.of(Polls.class).find(queryBuilder.setWhereClause("id = " + pollId), new AsyncCallback<List<Polls>>() {
                 @Override
                 public void handleResponse(List<Polls> poll) {
@@ -123,7 +120,21 @@ public class pollVote extends AppCompatActivity {
                     int currentTotal = poll.get(0).getTotalVotes();
                     p.setYes(currentYes + 1);
                     p.setTotalVotes(currentTotal + 1);
-                    Backendless.Data.of(Polls.class).save(p, updateResponder);
+                    Map<String,Object> changes=new  HashMap<>();
+                    changes.put("Yes", p.getYes());
+                    changes.put("totalVotes", p.getTotalVotes());
+                    Backendless.Data.of(Polls.class).update("id = " + pollId, changes, new AsyncCallback<Integer>() {
+                        @Override
+                        public void handleResponse(Integer response) {
+
+
+                        }
+
+                        @Override
+                        public void handleFault(BackendlessFault fault) {
+
+                        }
+                    });
                 }
 
                 @Override
@@ -134,17 +145,6 @@ public class pollVote extends AppCompatActivity {
         }
         else if(buttonId == R.id.No)
         {
-            final AsyncCallback<Polls> updateResponder = new AsyncCallback<Polls>() {
-                @Override
-                public void handleResponse(Polls response) {
-
-                }
-
-                @Override
-                public void handleFault(BackendlessFault fault) {
-
-                }
-            };
             Backendless.Data.of(Polls.class).find(queryBuilder.setWhereClause("id = " + pollId), new AsyncCallback<List<Polls>>() {
                 @Override
                 public void handleResponse(List<Polls> poll) {
@@ -152,7 +152,21 @@ public class pollVote extends AppCompatActivity {
                     int currentTotal = poll.get(0).getTotalVotes();
                     p.setNo(currentNo + 1);
                     p.setTotalVotes(currentTotal + 1);
-                    Backendless.Data.of(Polls.class).save(p, updateResponder);
+                    Map<String,Object> changes=new  HashMap<>();
+                    changes.put("No", p.getNo());
+                    changes.put("totalVotes", p.getTotalVotes());
+                    Backendless.Data.of(Polls.class).update("id = " + pollId, changes, new AsyncCallback<Integer>() {
+                        @Override
+                        public void handleResponse(Integer response) {
+
+
+                        }
+
+                        @Override
+                        public void handleFault(BackendlessFault fault) {
+
+                        }
+                    });
                 }
 
                 @Override
@@ -163,17 +177,6 @@ public class pollVote extends AppCompatActivity {
         }
         else if(buttonId == R.id.Neutral)
         {
-            final AsyncCallback<Polls> updateResponder = new AsyncCallback<Polls>() {
-                @Override
-                public void handleResponse(Polls response) {
-
-                }
-
-                @Override
-                public void handleFault(BackendlessFault fault) {
-
-                }
-            };
             Backendless.Data.of(Polls.class).find(queryBuilder.setWhereClause("id = " + pollId), new AsyncCallback<List<Polls>>() {
                 @Override
                 public void handleResponse(List<Polls> poll) {
@@ -181,7 +184,21 @@ public class pollVote extends AppCompatActivity {
                     int currentTotal = poll.get(0).getTotalVotes();
                     p.setNeutral(currentNeutral + 1);
                     p.setTotalVotes(currentTotal + 1);
-                    Backendless.Data.of(Polls.class).save(p, updateResponder);
+                    Map<String,Object> changes=new  HashMap<>();
+                    changes.put("Neutral", p.getNeutral());
+                    changes.put("totalVotes", p.getTotalVotes());
+                   Backendless.Data.of(Polls.class).update("id = " + pollId, changes, new AsyncCallback<Integer>() {
+                       @Override
+                       public void handleResponse(Integer response) {
+
+
+                       }
+
+                       @Override
+                       public void handleFault(BackendlessFault fault) {
+
+                       }
+                   });
                 }
 
                 @Override

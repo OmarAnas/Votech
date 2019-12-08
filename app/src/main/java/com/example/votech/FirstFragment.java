@@ -110,16 +110,15 @@ public class FirstFragment extends Fragment {
     {
         String concatIds="";
         for (int i=0; i <ids.size();i++)
-            if (i==ids.size()-1)
+            if (i==(ids.size()-1))
                 concatIds+=ids.get(i).toString();
             else
             concatIds+=ids.get(i).toString()+" , ";
 
         dataQuery.setWhereClause("endDate > '"+date+"'");
-        dataQuery.setWhereClause("id IN ("+ concatIds+")");
+        dataQuery.setWhereClause("id IN ("+concatIds+")");
         dataQuery.setSortBy("startDate DESC");
-
-        Backendless.Data.of(Polls.class).find(dataQuery,new AsyncCallback<List<Polls>>() {
+        Backendless.Data.of(Polls.class).find(new AsyncCallback<List<Polls>>() {
             @Override
             public void handleResponse(List<Polls> response) {
                 for (int i=0;i<response.size();i++){
