@@ -1,7 +1,9 @@
 package com.example.votech;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,19 +38,17 @@ public class SecondFragment extends Fragment{
     EditText title, desc, startDate, endDate;
     DataQueryBuilder queryBuilder = DataQueryBuilder.create();
     Spinner groupSpinner;
-    Polls poll;
-    PollGroups pg;
-    ArrayList<String> groups = new ArrayList<>();
-    ArrayAdapter adapter;
+
+
+    ArrayList<groups> groups = new ArrayList<>();
+    ArrayList<Integer> selectedGroupsID = new ArrayList<>();
     BackendlessUser user = Backendless.UserService.CurrentUser();
     int currentUserId = Integer.parseInt(user.getProperty("id").toString());
     int instructorFacultyID= Integer.parseInt(user.getProperty("FacultyID").toString());
-
     DateFormat formatter = new SimpleDateFormat("mm/dd/yyyy");
     Date stDate; //start date
     Date enDate; //end date
     int newPollId;
-    int selectedGroupId;
     Context mContext;
     public SecondFragment() {
         // Required empty public constructor
@@ -58,6 +58,7 @@ public class SecondFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext=context;
+        Log.i("Attach","Attached");
     }
 
     @Override
@@ -78,9 +79,9 @@ public class SecondFragment extends Fragment{
                 createPoll();
             }
         });
-        groups.add("Select the target group(s)");
-        groups.add("All Groups");
-        groupSpinner.setAdapter(adapter);
+//        groups.add("Select the target group(s)");
+//        groups.add("All Groups");
+//        groupSpinner.setAdapter(adapter);
         getGroups();
 
         groupSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -90,22 +91,33 @@ public class SecondFragment extends Fragment{
                 if(i==0) {
                     tv.setTextColor(Color.parseColor("#646873"));
                 }
-                else if(tv.getText().toString().equals("All Groups")){
-                    selectedGroupId = -2;
+                else if(i==1){
+                    selectedGroupsID.clear();
+                    tv.setText("All groups");
+//                    selectedGroupId = -2;
+                    for (int x =2 ; x < adapterView.getCount() ; x++)
+                    {
+                        groups g= (groups) groupSpinner.getItemAtPosition(x);
+                        selectedGroupsID.add(g.getId());
+                    }
                 }
                 else {
+                    selectedGroupsID.clear();
+                    groups g= (groups) groupSpinner.getItemAtPosition(i);
+                    tv.setText(g.getName());
                     tv.setTextColor(Color.WHITE);
-
-                    Backendless.Data.of(groups.class).find(queryBuilder.setWhereClause("Name= '" + tv.getText().toString()+"'"), new AsyncCallback<List<groups>>() {
-                        @Override
-                        public void handleResponse(List<groups> response) {
-                            selectedGroupId=response.get(0).getId();
-                        }
-
-                        @Override
-                        public void handleFault(BackendlessFault fault) {
-                        }
-                    });
+                    selectedGroupsID.add(g.getId());
+//                    selectedGroupId= g.getId();
+//                    Backendless.Data.of(groups.class).find(queryBuilder.setWhereClause("Name= '" + tv.getText().toString()+"'"), new AsyncCallback<List<groups>>() {
+//                        @Override
+//                        public void handleResponse(List<groups> response) {
+//                            selectedGroupId=response.get(0).getId();
+//                        }
+//
+//                        @Override
+//                        public void handleFault(BackendlessFault fault) {
+//                        }
+//                    });
                 }
             }
 
@@ -135,12 +147,12 @@ public class SecondFragment extends Fragment{
             Toast.makeText(getContext(), "Target group(s) is required", Toast.LENGTH_LONG).show();
         }
         else{
-            Backendless.Data.of(Polls.class).getObjectCount(new AsyncCallback<Integer>() {
+            Backendless.Data.of(Polls.class).find(DataQueryBuilder.create().setProperties("Max(id) as id"),new AsyncCallback<List<Polls>>() {
                 @Override
-                public void handleResponse(Integer count) {
-                    poll = new Polls();
-                    pg = new PollGroups();
-                    newPollId = count + 1;
+                public void handleResponse(List<Polls> response) {
+                    Polls poll = new Polls();
+
+                    newPollId = response.get(0).getId() + 1;
                     poll.setTitle(title.getText().toString());
                     poll.setDescription(desc.getText().toString());
                     poll.setId(newPollId);
@@ -151,45 +163,51 @@ public class SecondFragment extends Fragment{
                         poll.setStartDate(stDate);
                         poll.setEndDate(enDate);
                     } catch (ParseException e) {
-                        e.printStackTrace();
+                        Toast.makeText(mContext, "try catch date: "+e.getMessage(), Toast.LENGTH_LONG).show();
                     }
-                    pg.setPollID(newPollId);
-                    pg.setGroupID(selectedGroupId);
 
-                    Backendless.Data.of(PollGroups.class).getObjectCount(new AsyncCallback<Integer>() {
-                        @Override
-                        public void handleResponse(Integer count) {
-                            pg.setId(count + 1);
-                        }
-
-                        @Override
-                        public void handleFault(BackendlessFault fault) {
-                        }
-                    });
                     Backendless.Persistence.of(Polls.class).save(poll, new AsyncCallback<Polls>() {
                         @Override
                         public void handleResponse(Polls response) {
+                            Toast.makeText(mContext, "Poll created Successfully", Toast.LENGTH_LONG).show();
+                            Intent in = new Intent(mContext,pollVote.class);
+                            in.putExtra("pollID",newPollId+"");
+                            startActivity(in);
+
+                            Backendless.Data.of(PollGroups.class).find(DataQueryBuilder.create().setProperties("Max(id) as id"),new AsyncCallback<List<PollGroups>>() {
+                                @Override
+                                public void handleResponse(List<PollGroups> response) {
+                                    for (int i = 0; i < selectedGroupsID.size(); i++) {
+                                        PollGroups pg = new PollGroups();
+                                        pg.setId(response.get(0).getId() + (i+1));
+                                        pg.setPollID(newPollId);
+                                        pg.setGroupID(selectedGroupsID.get(i));
+                                        Backendless.Persistence.of(PollGroups.class).save(pg, new AsyncCallback<PollGroups>() {
+                                            @Override
+                                            public void handleResponse(PollGroups response) {
+                                            }
+
+                                            @Override
+                                            public void handleFault(BackendlessFault fault) {
+                                                Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                    selectedGroupsID.clear();
+                                    ((Activity) mContext).finish();
+                                }
+                                @Override
+                                public void handleFault(BackendlessFault fault) {
+                                }
+                            });
 
                         }
-
                         @Override
                         public void handleFault(BackendlessFault fault) {
-
-                        }
-                    });
-                    Backendless.Persistence.of(PollGroups.class).save(pg, new AsyncCallback<PollGroups>() {
-                        @Override
-                        public void handleResponse(PollGroups response) {
-
-                        }
-
-                        @Override
-                        public void handleFault(BackendlessFault fault) {
-
+                            Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
                 }
-
                 @Override
                 public void handleFault(BackendlessFault fault) {
                     Toast.makeText(getContext(), fault.getMessage(), Toast.LENGTH_LONG).show();
@@ -202,11 +220,32 @@ public class SecondFragment extends Fragment{
         Backendless.Data.of(groups.class).find(queryBuilder.setWhereClause("FacultyID=" + instructorFacultyID).setSortBy("id DESC"), new AsyncCallback<List<groups>>() {
             @Override
             public void handleResponse(List<groups> groupsList) {
+                groups g=new groups();
+                g.setName("Select the target group(s)");
+                groups.add(g);
+                groups g2=new groups();
+                g2.setName("All groups");
+                groups.add(g2);
                 for (int i = 0; i < groupsList.size(); i++)
-                    groups.add(groupsList.get(i).getName());
+                    groups.add(groupsList.get(i));
 
-                Log.i("Error",groups.get(0));
+//                Log.i("Error",groups.get(0));
                 ArrayAdapter adapter = new ArrayAdapter(mContext, R.layout.spinner_item, groups){
+
+
+                    @Override
+                    public View getView(int position,View convertView, ViewGroup parent) {
+                        View view= super.getView(position, convertView, parent);
+                        TextView tv = (TextView) view;
+                        if(position == 0){
+                            // Set the hint text color gray
+                            tv.setText("Select the target group(s)");
+                            tv.setTextColor(Color.parseColor("#646873"));
+
+                        }
+                        return view;
+                    }
+
                     @Override
                     public boolean isEnabled(int position){
                         if(position == 0)
@@ -220,9 +259,12 @@ public class SecondFragment extends Fragment{
                         TextView tv = (TextView) view;
                         if(position == 0){
                             // Set the hint text color gray
+                            tv.setText("Select the target group(s)");
                             tv.setTextColor(Color.parseColor("#646873"));
+
                         }
                         else {
+                            tv.setText(groups.get(position).getName());
                             tv.setTextColor(Color.BLACK);
                         }
                         return view;

@@ -96,7 +96,7 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
             Toast.makeText(mContext, "group name is missing", Toast.LENGTH_LONG).show();
         else {
             TextView question = new TextView(mContext);
-            question.setText("Are you sure you ?");
+            question.setText("Are you sure you want to add group '"+groupname.getText().toString()+"' ?");
             question.setTextColor(Color.WHITE);
             question.setPadding(50, 30, 20, 30);
 
@@ -119,13 +119,14 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
 
-                            Backendless.Data.of(groups.class).getObjectCount(new AsyncCallback<Integer>() {
+                            Backendless.Data.of(groups.class).find(queryBuilder.setProperties("Max(id) as id"),new AsyncCallback<List<groups>>() {
                                 @Override
-                                public void handleResponse(Integer response) {
+                                public void handleResponse(List<groups> response) {
                                     groups g = new groups();
                                     g.setName(groupname.getText().toString());
                                     g.setFacultyID(instructorFacultyID);
-                                    g.setId(response+1);
+                                    Log.i("object",response.get(0).toString());
+                                    g.setId(response.get(0).getId()+1);
                                     Backendless.Persistence.save( g, new AsyncCallback<groups>() {
                                         @Override
                                         public void handleResponse(groups response) {
