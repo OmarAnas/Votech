@@ -99,6 +99,13 @@ public class pollVote extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent in = new Intent(this, Home.class);
+        startActivity(in);
+        this.finish();
+    }
+
     public void vote(View view)
     {
         int buttonId = view.getId();

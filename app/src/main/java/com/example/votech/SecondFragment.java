@@ -2,6 +2,7 @@ package com.example.votech;
 
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -29,8 +31,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class SecondFragment extends Fragment{
 
@@ -45,11 +49,12 @@ public class SecondFragment extends Fragment{
     BackendlessUser user = Backendless.UserService.CurrentUser();
     int currentUserId = Integer.parseInt(user.getProperty("id").toString());
     int instructorFacultyID= Integer.parseInt(user.getProperty("FacultyID").toString());
-    DateFormat formatter = new SimpleDateFormat("mm/dd/yyyy");
+    DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
     Date stDate; //start date
     Date enDate; //end date
     int newPollId;
     Context mContext;
+    DatePickerDialog datePickerDialog;
     public SecondFragment() {
         // Required empty public constructor
     }
@@ -127,6 +132,24 @@ public class SecondFragment extends Fragment{
             }
         });
 
+        startDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               setStartDate();
+            }
+        });
+
+        endDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(startDate.getText().toString().equals(""))
+                    Toast.makeText(getActivity(), "Please choose Start Date First", Toast.LENGTH_LONG).show();
+                else
+                    setEndDate();
+
+            }
+        });
+
         return view;
     }
 
@@ -160,6 +183,7 @@ public class SecondFragment extends Fragment{
                     try {
                         stDate = formatter.parse(startDate.getText().toString());
                         enDate = formatter.parse(endDate.getText().toString());
+                        Log.i("start date",stDate+"");
                         poll.setStartDate(stDate);
                         poll.setEndDate(enDate);
                     } catch (ParseException e) {
@@ -279,5 +303,42 @@ public class SecondFragment extends Fragment{
             }
         });
     }
+    public void setStartDate() {
+        Calendar calendar = Calendar.getInstance();
 
+        datePickerDialog=  new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+            startDate.setText(day +"/"+ (month+1) + "/" +year);
+        }
+    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+    datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+    calendar.add(Calendar.MONTH, 2); //add two months for max date
+    datePickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
+    datePickerDialog.show();
+   }
+    public void setEndDate() {
+        Calendar calendar = Calendar.getInstance();
+
+        String startDatestr=startDate.getText().toString().trim();
+        int startDateday =Integer.parseInt(startDatestr.split("/")[0]);
+        int startDatemonth =Integer.parseInt(startDatestr.split("/")[1])-1;
+        int startDateyear =Integer.parseInt(startDatestr.split("/")[2]);
+
+        DatePickerDialog datePickerDialog=  new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+           @Override
+           public void onDateSet(DatePicker datePicker, int y, int m, int d) {
+               endDate.setText(d +"/"+(m+1)+"/"+y);
+           }
+       }, startDateyear, startDatemonth, startDateday);
+
+
+        calendar.set(Calendar.YEAR,startDateyear);
+        calendar.set(Calendar.MONTH, startDatemonth);
+        calendar.set(Calendar.DAY_OF_MONTH, startDateday);
+       datePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
+       calendar.add(Calendar.MONTH, 6); //add 6 months for max date
+       datePickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
+       datePickerDialog.show();
+   }
 }
