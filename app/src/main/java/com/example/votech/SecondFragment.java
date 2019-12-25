@@ -194,6 +194,7 @@ public class SecondFragment extends Fragment{
                         @Override
                         public void handleResponse(Polls response) {
                             Toast.makeText(mContext, "Poll created Successfully", Toast.LENGTH_LONG).show();
+
                             Intent in = new Intent(mContext,pollVote.class);
                             in.putExtra("pollID",newPollId+"");
                             startActivity(in);
@@ -306,7 +307,7 @@ public class SecondFragment extends Fragment{
     public void setStartDate() {
         Calendar calendar = Calendar.getInstance();
 
-        datePickerDialog=  new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+        datePickerDialog=  new DatePickerDialog(getActivity(),R.style.MyDialogTheme, new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker datePicker, int year, int month, int day) {
             startDate.setText(day +"/"+ (month+1) + "/" +year);
@@ -325,7 +326,7 @@ public class SecondFragment extends Fragment{
         int startDatemonth =Integer.parseInt(startDatestr.split("/")[1])-1;
         int startDateyear =Integer.parseInt(startDatestr.split("/")[2]);
 
-        DatePickerDialog datePickerDialog=  new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+        DatePickerDialog datePickerDialog=  new DatePickerDialog(getActivity(),R.style.MyDialogTheme, new DatePickerDialog.OnDateSetListener() {
            @Override
            public void onDateSet(DatePicker datePicker, int y, int m, int d) {
                endDate.setText(d +"/"+(m+1)+"/"+y);

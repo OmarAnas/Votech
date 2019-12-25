@@ -74,6 +74,7 @@ public class FirstFragment extends Fragment {
                Polls p = (Polls)pollsList.getItemAtPosition(i);
                Intent in = new Intent(mContext,pollVote.class);
                in.putExtra("pollID",p.getId().toString());
+               getActivity().finish();
                startActivity(in);
            }
        });
@@ -85,6 +86,7 @@ public class FirstFragment extends Fragment {
 
         dataQuery.setWhereClause("instructorID= "+UserID);
         dataQuery.setSortBy("startDate DESC");
+        dataQuery.setPageSize(100);
 
         Backendless.Data.of(Polls.class).find(dataQuery,new AsyncCallback<List<Polls>>() {
             @Override
@@ -92,6 +94,8 @@ public class FirstFragment extends Fragment {
                 for (int i=0;i<response.size();i++){
                     polls.add(response.get(i));
                 }
+                Log.i("response",response.size()+"");
+                Log.i("ArrayList ",polls.size()+"");
                 adapter = new ArrayAdapter(mContext, android.R.layout.simple_list_item_1, polls){
                     @Override
                     public View getView(int position,  View convertView, ViewGroup parent) {
@@ -105,6 +109,7 @@ public class FirstFragment extends Fragment {
                         return view;
                     }
                 };
+                Log.i("Count",adapter.getCount()+"");
                 pollsList.setAdapter(adapter);
             }
             @Override
@@ -124,7 +129,9 @@ public class FirstFragment extends Fragment {
 
         dataQuery.setWhereClause("endDate > '"+date+"'");
         dataQuery.setWhereClause("id IN ("+concatIds+")");
+        dataQuery.setWhereClause("startDate <= '"+date+"'");
         dataQuery.setSortBy("startDate DESC");
+        dataQuery.setPageSize(100);
 
 
 
@@ -158,7 +165,7 @@ public class FirstFragment extends Fragment {
 
     public void getPollsGroups()
     {
-       Backendless.Data.of(PollGroups.class).find(dataQuery.setWhereClause("groupID = "+groupID),new AsyncCallback<List<PollGroups>>() {
+       Backendless.Data.of(PollGroups.class).find(dataQuery.setWhereClause("groupID = "+groupID).setPageSize(100),new AsyncCallback<List<PollGroups>>() {
            @Override
            public void handleResponse(List<PollGroups> response) {
                for (int i = 0; i < response.size() ; i++) {
