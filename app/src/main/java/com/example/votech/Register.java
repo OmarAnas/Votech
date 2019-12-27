@@ -276,6 +276,8 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
         Backendless.Data.of(groups.class).find(dataQuery.setWhereClause("FacultyID ="+FacultyID).setSortBy("id DESC"), new AsyncCallback<List<groups>>() {
             @Override
             public void handleResponse(List<groups> groupsList) {
+                groups.clear();
+                groups.add("Select Your Group...");
                 for (int i = 0; i < groupsList.size(); i++)
                     groups.add(groupsList.get(i).getName());
 

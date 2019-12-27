@@ -8,8 +8,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
      TextView signup;
      String text = "First time here? Sign Up.";
      SpannableString spannableString = new SpannableString(text);
-     boolean isNewActivity=true;
+     boolean isNewActivity=true, isLogin=false;
     SharedPreferences sharedpreferences;
 
     @Override
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
         signup.setText(spannableString);
         signup.setMovementMethod(LinkMovementMethod.getInstance());
         signup.setHighlightColor(Color.TRANSPARENT);
+
 
         Backendless.initApp(this,"B808DB02-5530-3A99-FFE3-39A739A3D500","BB1EC234-5D1B-4738-8B61-4471397180A7");
 
@@ -76,21 +79,33 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
             startActivity(in);
             MainActivity.this.finish();
         }
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            super.updateDrawState(ds);
+            ds.setColor(Color.parseColor("#25BCD5"));
+        }
     };
 
 
     public void Login(View view) {
-        String mail=email.getText().toString().trim();
-        String pass=password.getText().toString().trim();
-        Backendless.UserService.login(mail,pass,this);
+        if(!isLogin) {
+            Log.i("entered","Login");
+            String mail = email.getText().toString().trim();
+            String pass = password.getText().toString().trim();
+            Backendless.UserService.login(mail, pass, this);
+            isLogin=true;
+        }
     }
 
     @Override
     public void handleResponse(BackendlessUser response) {
+
         if(isNewActivity)
         {
             UserPassword=password.getText().toString();
             isNewActivity=false;
+            isLogin=true;
             Intent in=new Intent(this,Home.class);
             startActivity(in);
             this.finish();
@@ -106,5 +121,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
             Toast.makeText(this, "Email or Password is empty", Toast.LENGTH_LONG).show();
         else
             Toast.makeText(this,fault.getMessage(), Toast.LENGTH_SHORT).show();
+
+        isLogin=false;
     }
 }

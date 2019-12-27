@@ -49,7 +49,7 @@ public class SecondFragment extends Fragment{
     BackendlessUser user = Backendless.UserService.CurrentUser();
     int currentUserId = Integer.parseInt(user.getProperty("id").toString());
     int instructorFacultyID= Integer.parseInt(user.getProperty("FacultyID").toString());
-    DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+    DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
     Date stDate; //start date
     Date enDate; //end date
     int newPollId;
@@ -154,20 +154,26 @@ public class SecondFragment extends Fragment{
     }
 
     public void createPoll() {
+        createPoll.setClickable(false);
         if(title.getText().toString().equals("")){
             Toast.makeText(getContext(), "Title is required", Toast.LENGTH_LONG).show();
+            createPoll.setClickable(true);
         }
         else if(desc.getText().toString().equals("")){
             Toast.makeText(getContext(), "Description is required", Toast.LENGTH_LONG).show();
+            createPoll.setClickable(true);
         }
         else if(startDate.getText().toString().equals("")){
             Toast.makeText(getContext(), "Start date is required", Toast.LENGTH_LONG).show();
+            createPoll.setClickable(true);
         }
         else if(endDate.getText().toString().equals("")){
             Toast.makeText(getContext(), "End date is required", Toast.LENGTH_LONG).show();
+            createPoll.setClickable(true);
         }
         else if(groupSpinner.getSelectedItemPosition()==0){
             Toast.makeText(getContext(), "Target group(s) is required", Toast.LENGTH_LONG).show();
+            createPoll.setClickable(true);
         }
         else{
             Backendless.Data.of(Polls.class).find(DataQueryBuilder.create().setProperties("Max(id) as id"),new AsyncCallback<List<Polls>>() {
@@ -181,8 +187,8 @@ public class SecondFragment extends Fragment{
                     poll.setId(newPollId);
                     poll.setInstructorID(currentUserId);
                     try {
-                        stDate = formatter.parse(startDate.getText().toString());
-                        enDate = formatter.parse(endDate.getText().toString());
+                        stDate = formatter.parse(startDate.getText().toString()+" 00:00:00");
+                        enDate = formatter.parse(endDate.getText().toString() +" 23:59:59");
                         Log.i("start date",stDate+"");
                         poll.setStartDate(stDate);
                         poll.setEndDate(enDate);
@@ -215,6 +221,7 @@ public class SecondFragment extends Fragment{
                                             @Override
                                             public void handleFault(BackendlessFault fault) {
                                                 Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
+                                                createPoll.setClickable(true);
                                             }
                                         });
                                     }
@@ -223,6 +230,8 @@ public class SecondFragment extends Fragment{
                                 }
                                 @Override
                                 public void handleFault(BackendlessFault fault) {
+                                    Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_LONG).show();
+                                    createPoll.setClickable(true);
                                 }
                             });
 
@@ -230,12 +239,14 @@ public class SecondFragment extends Fragment{
                         @Override
                         public void handleFault(BackendlessFault fault) {
                             Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_LONG).show();
+                            createPoll.setClickable(true);
                         }
                     });
                 }
                 @Override
                 public void handleFault(BackendlessFault fault) {
                     Toast.makeText(getContext(), fault.getMessage(), Toast.LENGTH_LONG).show();
+                    createPoll.setClickable(true);
                 }
             });
         }

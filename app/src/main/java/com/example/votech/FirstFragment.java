@@ -32,6 +32,7 @@ import java.util.Locale;
 public class FirstFragment extends Fragment {
 
     ListView pollsList;
+    TextView noPolls;
     ArrayList<Polls> polls = new ArrayList<>();
     ArrayList<Integer> Pollids = new ArrayList<>();
     DataQueryBuilder dataQuery = DataQueryBuilder.create();
@@ -68,6 +69,8 @@ public class FirstFragment extends Fragment {
        if(userType==1) // instructor to get all polls he posted
         getPolls();
 
+       noPolls=view.findViewById(R.id.noPolls);
+
        pollsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
            @Override
            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -91,6 +94,7 @@ public class FirstFragment extends Fragment {
         Backendless.Data.of(Polls.class).find(dataQuery,new AsyncCallback<List<Polls>>() {
             @Override
             public void handleResponse(List<Polls> response) {
+                checkIfempty(response);
                 for (int i=0;i<response.size();i++){
                     polls.add(response.get(i));
                 }
@@ -126,18 +130,21 @@ public class FirstFragment extends Fragment {
                 concatIds+=ids.get(i).toString();
             else
             concatIds+=ids.get(i).toString()+" , ";
+        DataQueryBuilder dataQuery = DataQueryBuilder.create();
 
-        dataQuery.setWhereClause("endDate > '"+date+"'");
-        dataQuery.setWhereClause("id IN ("+concatIds+")");
-        dataQuery.setWhereClause("startDate <= '"+date+"'");
-        dataQuery.setSortBy("startDate DESC");
-        dataQuery.setPageSize(100);
+//        dataQuery.setWhereClause("startDate <= '"+date+"' AND endDate > '"+date+"' AND id IN("+concatIds+")");
+//        dataQuery.setWhereClause("endDate > '"+date+"'");
+        if(ids.size()>0)
+            dataQuery.setWhereClause("startDate <= '"+date+"' AND endDate >= '"+date+"' AND id IN("+concatIds+")")
+                    .setSortBy("startDate DESC")
+                    .setPageSize(100);
 
+        Log.i("query",dataQuery.getWhereClause()+"");
 
-
-            Backendless.Data.of(Polls.class).find(new AsyncCallback<List<Polls>>() {
+            Backendless.Data.of(Polls.class).find(dataQuery,new AsyncCallback<List<Polls>>() {
             @Override
             public void handleResponse(List<Polls> response) {
+                checkIfempty(response);
                 for (int i=0;i<response.size();i++){
                    polls.add(response.get(i));
                }
@@ -165,7 +172,8 @@ public class FirstFragment extends Fragment {
 
     public void getPollsGroups()
     {
-       Backendless.Data.of(PollGroups.class).find(dataQuery.setWhereClause("groupID = "+groupID).setPageSize(100),new AsyncCallback<List<PollGroups>>() {
+        DataQueryBuilder dataQuery = DataQueryBuilder.create();
+        Backendless.Data.of(PollGroups.class).find(dataQuery.setWhereClause("groupID = "+groupID).setPageSize(100),new AsyncCallback<List<PollGroups>>() {
            @Override
            public void handleResponse(List<PollGroups> response) {
                for (int i = 0; i < response.size() ; i++) {
@@ -178,5 +186,12 @@ public class FirstFragment extends Fragment {
                Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
            }
        });
+   }
+
+   public void checkIfempty(List e){
+        if(e.size()==0){
+            pollsList.setVisibility(View.GONE);
+            noPolls.setVisibility(View.VISIBLE);
+        }
    }
 }

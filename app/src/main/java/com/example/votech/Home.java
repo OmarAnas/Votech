@@ -1,17 +1,12 @@
 package com.example.votech;
 
-import android.graphics.drawable.Drawable;
+
 import android.os.Bundle;
-import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.MenuItem;
-import android.widget.TextView;
-
 import com.backendless.Backendless;
-import com.squareup.picasso.Picasso;
 
 public class Home extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
