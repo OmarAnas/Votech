@@ -35,6 +35,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SecondFragment extends Fragment{
 
@@ -155,12 +157,24 @@ public class SecondFragment extends Fragment{
 
     public void createPoll() {
         createPoll.setClickable(false);
-        if(title.getText().toString().equals("")){
+        if(title.getText().toString().trim().equals("")){
             Toast.makeText(getContext(), "Title is required", Toast.LENGTH_LONG).show();
             createPoll.setClickable(true);
         }
-        else if(desc.getText().toString().equals("")){
+        else if (title.getText().toString().replaceAll("\\s{2,}", " ").trim().length() < 3 || title.getText().toString().replaceAll("\\s{2,}", " ").trim().length() > 50) {
+            Toast.makeText(mContext, "Title should be more than 3 characters and less than 50 characters", Toast.LENGTH_LONG).show();
+            createPoll.setClickable(true);
+        }
+        else if (isSpecialCharacter(title.getText().toString().replaceAll("\\s{2,}", " ").trim()) || isSpecialCharacter(desc.getText().toString().replaceAll("\\s{2,}", " ").trim())){
+            Toast.makeText(mContext, "Please don't use special characters", Toast.LENGTH_LONG).show();
+            createPoll.setClickable(true);
+        }
+        else if(desc.getText().toString().trim().equals("")){
             Toast.makeText(getContext(), "Description is required", Toast.LENGTH_LONG).show();
+            createPoll.setClickable(true);
+        }
+        else if (desc.getText().toString().replaceAll("\\s{2,}", " ").trim().length() < 6 || desc.getText().toString().replaceAll("\\s{2,}", " ").trim().length() > 800) {
+            Toast.makeText(mContext, "Description should be more than 6 characters and less than 800 characters", Toast.LENGTH_LONG).show();
             createPoll.setClickable(true);
         }
         else if(startDate.getText().toString().equals("")){
@@ -182,8 +196,8 @@ public class SecondFragment extends Fragment{
                     Polls poll = new Polls();
 
                     newPollId = response.get(0).getId() + 1;
-                    poll.setTitle(title.getText().toString());
-                    poll.setDescription(desc.getText().toString());
+                    poll.setTitle(title.getText().toString().replaceAll("\\s{2,}", " ").trim());
+                    poll.setDescription(desc.getText().toString().replaceAll("\\s{2,}", " ").trim());
                     poll.setId(newPollId);
                     poll.setInstructorID(currentUserId);
                     try {
@@ -353,4 +367,16 @@ public class SecondFragment extends Fragment{
        datePickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
        datePickerDialog.show();
    }
+    public boolean isSpecialCharacter(String s) {
+
+        Pattern p = Pattern.compile("[^A-Za-z0-9 _?}{.;:]");
+        Matcher m = p.matcher(s);
+
+        boolean b = m.find();
+        if (b)
+            return true;
+        else
+            return false;
+
+    }
 }

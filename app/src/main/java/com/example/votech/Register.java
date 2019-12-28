@@ -25,6 +25,8 @@ import com.backendless.persistence.DataQueryBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Register extends AppCompatActivity implements AsyncCallback<BackendlessUser>  {
     EditText name, email, password, confirmpassword;
@@ -156,14 +158,20 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
     public void register(View view) {
         if (name.getText().toString().equals(""))
             Toast.makeText(this, "Name is required", Toast.LENGTH_LONG).show();
+        else if (name.getText().toString().length() < 3 || name.getText().toString().length() > 16)
+            Toast.makeText(this, "Name should be more than 3 characters and less than 16 characters", Toast.LENGTH_LONG).show();
         else if (password.getText().toString().equals("") || confirmpassword.getText().toString().equals("") )
             Toast.makeText(Register.this, "Passwords cannot be empty", Toast.LENGTH_LONG).show();
+        else if (password.getText().toString().length() < 3 || password.getText().toString().length() > 16)
+            Toast.makeText(this, "Passwords should be more than 3 characters and less than 16 characters", Toast.LENGTH_SHORT).show();
         else if (!(password.getText().toString().equals(confirmpassword.getText().toString())))
             Toast.makeText(Register.this, "Passwords don't match", Toast.LENGTH_LONG).show();
         else if (facultySpinner.getSelectedItemPosition()==0)
             Toast.makeText(Register.this, "Please Select your Faculty", Toast.LENGTH_LONG).show();
         else if (groupsSpinner.getSelectedItemPosition()==0)
             Toast.makeText(Register.this, "Please Select your Group", Toast.LENGTH_LONG).show();
+        else if (isSpecialCharacter(name.getText().toString()) || isSpecialCharacter(password.getText().toString()) || isSpecialCharacter(email.getText().toString()))
+            Toast.makeText(this, "Please only enter A-z 0-9 characters", Toast.LENGTH_LONG).show();
         else
         Backendless.Data.of(BackendlessUser.class).getObjectCount(new AsyncCallback<Integer>()
         {
@@ -171,12 +179,11 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
             public void handleResponse(Integer count) {
                 BackendlessUser user = new BackendlessUser();
 
-                user.setPassword(password.getText().toString().trim());
-                user.setEmail(email.getText().toString().trim());
-                user.setProperty("name", name.getText().toString().trim());
+                user.setPassword(password.getText().toString().replaceAll("\\s{2,}", " ").trim());
+                user.setEmail(email.getText().toString().replaceAll("\\s{2,}", " ").trim());
+                user.setProperty("name", name.getText().toString().replaceAll("\\s{2,}", " ").trim());
                 user.setProperty("FacultyID", facultySpinner.getSelectedItemPosition());
                 user.setProperty("groupID",groupID);
-
                 user.setProperty("id",count+1);
                 Backendless.UserService.register(user, Register.this);
             }
@@ -312,4 +319,17 @@ public class Register extends AppCompatActivity implements AsyncCallback<Backend
             }
         });
     }
+    public boolean isSpecialCharacter(String s) {
+
+        Pattern p = Pattern.compile("[^A-Za-z0-9@. ]");
+        Matcher m = p.matcher(s);
+
+        boolean b = m.find();
+        if (b)
+            return true;
+        else
+            return false;
+
     }
+
+}

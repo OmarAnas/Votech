@@ -229,13 +229,13 @@
         android:id="@+id/editEndDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="64dp"
-        android:layout_marginEnd="56dp"
+        android:layout_marginEnd="8dp"
         android:onClick="editEndDate"
         android:src="@drawable/ic_mode_edit_black_24dp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.12"
         app:layout_constraintStart_toEndOf="@+id/endDateText"
         app:layout_constraintTop_toBottomOf="@+id/Description" />
 

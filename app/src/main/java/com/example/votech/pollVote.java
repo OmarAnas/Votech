@@ -40,6 +40,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class pollVote extends AppCompatActivity {
 
@@ -515,14 +517,17 @@ public class pollVote extends AppCompatActivity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                         String desc= changeDesc.getText().toString();
+                         String desc= changeDesc.getText().toString().replaceAll("\\s{2,}", " ").trim();
+                        if (isSpecialCharacter(desc))
+                            Toast.makeText(pollVote.this, "Please don't use special characters", Toast.LENGTH_LONG).show();
+                        else if (desc.length() < 6 || desc.length() > 800)
+                            Toast.makeText(pollVote.this, "Description cannot be less than 6 characters or more than 300 characters", Toast.LENGTH_LONG).show();
+                        else{
                          description.setText(desc);
                          p.setDescription(desc);
                         Map<String,Object> changes=new  HashMap<>();
                         changes.put("Description", p.getDescription());
                         Backendless.Data.of(Polls.class).update("id = " + pollId, changes, new AsyncCallback<Integer>() {
-
-
                             @Override
                             public void handleResponse(Integer response) {
                                 Toast.makeText(pollVote.this, "Description Updated Successfully", Toast.LENGTH_SHORT).show();
@@ -530,9 +535,10 @@ public class pollVote extends AppCompatActivity {
 
                             @Override
                             public void handleFault(BackendlessFault fault) {
-
+                                Toast.makeText(pollVote.this, fault.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
+                    }
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -581,10 +587,15 @@ public class pollVote extends AppCompatActivity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String titolo= changeTitle.getText().toString();
-                        title.setText(titolo);
+                        String titolo = changeTitle.getText().toString().replaceAll("\\s{2,}", " ").trim();
+                        if (isSpecialCharacter(titolo))
+                            Toast.makeText(pollVote.this, "Please don't use special characters", Toast.LENGTH_LONG).show();
+                        else if (titolo.length() < 3 || titolo.length() > 50)
+                            Toast.makeText(pollVote.this, "Title cannot be less than 3 characters or more than 50 characters", Toast.LENGTH_LONG).show();
+                        else{
+                            title.setText(titolo);
                         p.setTitle(titolo);
-                        Map<String,Object> changes=new  HashMap<>();
+                        Map<String, Object> changes = new HashMap<>();
                         changes.put("Title", p.getTitle());
                         Backendless.Data.of(Polls.class).update("id = " + pollId, changes, new AsyncCallback<Integer>() {
                             @Override
@@ -594,9 +605,11 @@ public class pollVote extends AppCompatActivity {
 
                             @Override
                             public void handleFault(BackendlessFault fault) {
+                                Toast.makeText(pollVote.this, fault.getMessage(), Toast.LENGTH_SHORT).show();
 
                             }
                         });
+                    }
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -745,6 +758,19 @@ public class pollVote extends AppCompatActivity {
 
         YoYo.with(Techniques.FadeIn).duration(1000).playOn(noBar);
         YoYo.with(Techniques.FadeIn).duration(1000).playOn(noStat);
+
+    }
+
+    public boolean isSpecialCharacter(String s) {
+
+        Pattern p = Pattern.compile("[^A-Za-z0-9 _?}{.;:]");
+        Matcher m = p.matcher(s);
+
+        boolean b = m.find();
+        if (b)
+            return true;
+        else
+            return false;
 
     }
 }

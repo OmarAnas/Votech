@@ -84,12 +84,9 @@ public class FirstFragment extends Fragment {
 
         return view;
     }
-    public void getPolls()
-    {
+    public void getPolls() {
 
-        dataQuery.setWhereClause("instructorID= "+UserID);
-        dataQuery.setSortBy("startDate DESC");
-        dataQuery.setPageSize(100);
+        dataQuery.setWhereClause("instructorID= "+UserID).setSortBy("startDate DESC").setPageSize(100);
 
         Backendless.Data.of(Polls.class).find(dataQuery,new AsyncCallback<List<Polls>>() {
             @Override
@@ -122,8 +119,8 @@ public class FirstFragment extends Fragment {
             }
         });
     }
-    public void getPolls(ArrayList<Integer> ids)
-    {
+
+    public void getPolls(ArrayList<Integer> ids) {
         String concatIds="";
         for (int i=0; i <ids.size();i++)
             if (i==(ids.size()-1))
@@ -132,8 +129,6 @@ public class FirstFragment extends Fragment {
             concatIds+=ids.get(i).toString()+" , ";
         DataQueryBuilder dataQuery = DataQueryBuilder.create();
 
-//        dataQuery.setWhereClause("startDate <= '"+date+"' AND endDate > '"+date+"' AND id IN("+concatIds+")");
-//        dataQuery.setWhereClause("endDate > '"+date+"'");
         if(ids.size()>0)
             dataQuery.setWhereClause("startDate <= '"+date+"' AND endDate >= '"+date+"' AND id IN("+concatIds+")")
                     .setSortBy("startDate DESC")
@@ -170,8 +165,7 @@ public class FirstFragment extends Fragment {
         });
     }
 
-    public void getPollsGroups()
-    {
+    public void getPollsGroups() {
         DataQueryBuilder dataQuery = DataQueryBuilder.create();
         Backendless.Data.of(PollGroups.class).find(dataQuery.setWhereClause("groupID = "+groupID).setPageSize(100),new AsyncCallback<List<PollGroups>>() {
            @Override
@@ -188,7 +182,7 @@ public class FirstFragment extends Fragment {
        });
    }
 
-   public void checkIfempty(List e){
+    public void checkIfempty(List e){
         if(e.size()==0){
             pollsList.setVisibility(View.GONE);
             noPolls.setVisibility(View.VISIBLE);

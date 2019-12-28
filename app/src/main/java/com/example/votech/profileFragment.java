@@ -50,6 +50,9 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class profileFragment extends Fragment implements View.OnClickListener {
@@ -154,17 +157,24 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                        @Override
                        public void onClick(DialogInterface dialogInterface, int i) {
-                                backendlessUser.setProperty("name",changeName.getText().toString().trim());
-                                Backendless.UserService.update(backendlessUser, new AsyncCallback<BackendlessUser>() {
-                                    public void handleResponse(BackendlessUser user) {
-                                        name.setText(user.getProperty("name").toString());
-                                    }
+                           String nameoo=changeName.getText().toString().replaceAll("\\s{2,}", " ").trim();
+                               if (nameoo.length() < 3 || nameoo.length() > 16)
+                               Toast.makeText(mContext, "Name should be more than 3 characters and less than 16 characters", Toast.LENGTH_LONG).show();
+                               else if (isSpecialCharacter(nameoo))
+                                   Toast.makeText(mContext, "Please only enter A-z 0-9 characters", Toast.LENGTH_LONG).show();
+                               else {
+                                   backendlessUser.setProperty("name", nameoo);
+                                   Backendless.UserService.update(backendlessUser, new AsyncCallback<BackendlessUser>() {
+                                       public void handleResponse(BackendlessUser user) {
+                                           name.setText(user.getProperty("name").toString());
+                                       }
 
 
-                                    public void handleFault(BackendlessFault fault) {
-                                        Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                                       public void handleFault(BackendlessFault fault) {
+                                           Toast.makeText(mContext, fault.getMessage(), Toast.LENGTH_SHORT).show();
+                                       }
+                                   });
+                               }
                        }
                    })
                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -255,6 +265,10 @@ public class profileFragment extends Fragment implements View.OnClickListener {
                            Toast.makeText(mContext, "Fill all fields", Toast.LENGTH_LONG).show();
 
                        }
+                       else if (newPass.getText().toString().length() < 3 || newPass.getText().toString().length() > 16)
+                           Toast.makeText(mContext, "Passwords should be more than 3 characters and less than 16 characters", Toast.LENGTH_LONG).show();
+                       else if (isSpecialCharacter(newPass.getText().toString()))
+                           Toast.makeText(mContext, "Please only enter A-z 0-9 characters", Toast.LENGTH_LONG).show();
                        else {
                            backendlessUser.setPassword(newPass.getText().toString().trim());
                            Backendless.UserService.update(backendlessUser, new AsyncCallback<BackendlessUser>() {
@@ -546,6 +560,18 @@ public class profileFragment extends Fragment implements View.OnClickListener {
          }
 //        else
 //            Toast.makeText(getActivity(), "You haven't picked Image",Toast.LENGTH_LONG).show();
+
+    }
+    public boolean isSpecialCharacter(String s) {
+
+        Pattern p = Pattern.compile("[^A-Za-z0-9. ]");
+        Matcher m = p.matcher(s);
+
+        boolean b = m.find();
+        if (b)
+            return true;
+        else
+            return false;
 
     }
 }

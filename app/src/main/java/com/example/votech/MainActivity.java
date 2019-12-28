@@ -93,8 +93,13 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
             Log.i("entered","Login");
             String mail = email.getText().toString().trim();
             String pass = password.getText().toString().trim();
-            Backendless.UserService.login(mail, pass, this);
-            isLogin=true;
+
+            if(mail.isEmpty() || pass.isEmpty())
+                Toast.makeText(this, "Email or Password is empty", Toast.LENGTH_LONG).show();
+            else{
+                Backendless.UserService.login(mail, pass, this);
+                isLogin=true;
+            }
         }
     }
 
@@ -121,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
             Toast.makeText(this, "Email or Password is empty", Toast.LENGTH_LONG).show();
         else
             Toast.makeText(this,fault.getMessage(), Toast.LENGTH_SHORT).show();
-
+              
         isLogin=false;
     }
 }

@@ -26,6 +26,8 @@ import com.backendless.persistence.DataQueryBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ThirdFragment extends Fragment implements View.OnClickListener{
     Button addgb;
@@ -92,11 +94,16 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
 */
     @Override
     public void onClick(View view) {
-        if (groupname.getText().toString().equals(""))
-            Toast.makeText(mContext, "group name is missing", Toast.LENGTH_LONG).show();
+        if (groupname.getText().toString().trim().equals(""))
+            Toast.makeText(mContext, "Group Name is missing", Toast.LENGTH_LONG).show();
+        else if (groupname.getText().toString().replaceAll("\\s{2,}", " ").trim().length() < 3
+                || groupname.getText().toString().replaceAll("\\s{2,}", " ").trim().length() > 16)
+            Toast.makeText(mContext, "Group Name should be more than 3 characters and less than 16 characters", Toast.LENGTH_LONG).show();
+        else if (isSpecialCharacter(groupname.getText().toString().replaceAll("\\s{2,}", " ").trim()))
+            Toast.makeText(mContext, "Please only enter A-z 0-9 _.- characters", Toast.LENGTH_LONG).show();
         else {
             TextView question = new TextView(mContext);
-            question.setText("Are you sure you want to add group '"+groupname.getText().toString()+"' ?");
+            question.setText("Are you sure you want to add group '"+groupname.getText().toString().replaceAll("\\s{2,}", " ").trim()+"' ?");
             question.setTextColor(Color.WHITE);
             question.setPadding(50, 30, 20, 30);
 
@@ -107,23 +114,21 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
             title.setTextColor(Color.WHITE);
             dialogBuilder.setView(question)
                     .setCustomTitle(title)
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
 
                         }
                     })
                     .setPositiveButton("Yes" , new DialogInterface.OnClickListener(){
-
-
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-
+                              addgb.setClickable(false);
                             Backendless.Data.of(groups.class).find(queryBuilder.setProperties("Max(id) as id"),new AsyncCallback<List<groups>>() {
                                 @Override
                                 public void handleResponse(List<groups> response) {
                                     groups g = new groups();
-                                    g.setName(groupname.getText().toString());
+                                    g.setName(groupname.getText().toString().replaceAll("\\s{2,}", " ").trim());
                                     g.setFacultyID(instructorFacultyID);
                                     Log.i("object",response.get(0).toString());
                                     g.setId(response.get(0).getId()+1);
@@ -132,6 +137,7 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
                                         public void handleResponse(groups response) {
                                             Toast.makeText(mContext,"Group Added",Toast.LENGTH_LONG).show();
                                             groupname.setText("");
+                                            addgb.setClickable(true);
                                         }
 
                                         @Override
@@ -139,7 +145,8 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
                                             if(fault.getCode().equals("1155"))
                                                 Toast.makeText(mContext, "Group Already exists", Toast.LENGTH_LONG).show();
                                             else
-                                             Toast.makeText(mContext,fault.getMessage()+" "+fault.getCode(),Toast.LENGTH_LONG).show();
+                                             Toast.makeText(mContext,fault.getMessage(),Toast.LENGTH_LONG).show();
+                                            addgb.setClickable(true);
                                         }
                                     });
 
@@ -162,4 +169,18 @@ public class ThirdFragment extends Fragment implements View.OnClickListener{
         }
 
     }
+    public boolean isSpecialCharacter(String s) {
+
+        Pattern p = Pattern.compile("[^A-Za-z0-9 _.\\-]");
+        Matcher m = p.matcher(s);
+
+        boolean b = m.find();
+        if (b)
+            return true;
+        else
+            return false;
+
+    }
+
+
 }
