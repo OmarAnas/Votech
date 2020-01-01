@@ -670,6 +670,17 @@ public class pollVote extends AppCompatActivity {
                          @Override
                          public void handleResponse(Integer response) {
                              Toast.makeText(pollVote.this, "Poll Deleted Successfully!", Toast.LENGTH_SHORT).show();
+                             Backendless.Data.of(PollUser.class).remove("pollID = " + pollId, new AsyncCallback<Integer>() {
+                                 @Override
+                                 public void handleResponse(Integer response) {
+
+                                 }
+
+                                 @Override
+                                 public void handleFault(BackendlessFault fault) {
+
+                                 }
+                             });
                          }
 
                          @Override

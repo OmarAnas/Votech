@@ -133,7 +133,11 @@ public class FirstFragment extends Fragment {
             dataQuery.setWhereClause("startDate <= '"+date+"' AND endDate >= '"+date+"' AND id IN("+concatIds+")")
                     .setSortBy("startDate DESC")
                     .setPageSize(100);
-
+        else {
+            pollsList.setVisibility(View.GONE);
+            noPolls.setVisibility(View.VISIBLE);
+            return;
+        }
         Log.i("query",dataQuery.getWhereClause()+"");
 
             Backendless.Data.of(Polls.class).find(dataQuery,new AsyncCallback<List<Polls>>() {
