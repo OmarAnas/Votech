@@ -189,6 +189,18 @@ public class SecondFragment extends Fragment{
             Toast.makeText(getContext(), "Target group(s) is required", Toast.LENGTH_LONG).show();
             createPoll.setClickable(true);
         }
+//        else if(!endDate.getText().toString().equals("") && !startDate.getText().toString().equals("")){
+//            try {
+//                stDate = formatter.parse(startDate.getText().toString()+" 00:00:00");
+//                enDate = formatter.parse(endDate.getText().toString() +" 23:59:59");
+//                if(stDate.compareTo(enDate) > 0) {
+//                    Toast.makeText(getContext(), "Start Date must be before End Date", Toast.LENGTH_LONG).show();
+//                    createPoll.setClickable(true);
+//                }
+//            } catch (ParseException e) {
+//                Toast.makeText(mContext, "try catch date: "+e.getMessage(), Toast.LENGTH_LONG).show();
+//            }
+//        }
         else{
             Backendless.Data.of(Polls.class).find(DataQueryBuilder.create().setProperties("Max(id) as id"),new AsyncCallback<List<Polls>>() {
                 @Override
@@ -203,7 +215,7 @@ public class SecondFragment extends Fragment{
                     try {
                         stDate = formatter.parse(startDate.getText().toString()+" 00:00:00");
                         enDate = formatter.parse(endDate.getText().toString() +" 23:59:59");
-                        Log.i("start date",stDate+"");
+
                         poll.setStartDate(stDate);
                         poll.setEndDate(enDate);
                     } catch (ParseException e) {

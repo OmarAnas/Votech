@@ -435,7 +435,7 @@ public class profileFragment extends Fragment implements View.OnClickListener {
            remove.setOnClickListener(new View.OnClickListener() {
                @Override
                public void onClick(View view) {
-                   backendlessUser.setProperty("picture", "https://backendlessappcontent.com/B808DB02-5530-3A99-FFE3-39A739A3D500/2E1C56A2-CA5C-4252-968D-DBE4A881AEEF/files/pictures/default-profile-picture1.jpg");
+                   backendlessUser.setProperty("picture", "https://backendlessappcontent.com/DE4269C2-06C3-E85D-FF1D-2845241AB400/C73A1D88-E95F-4A3B-9DD0-2C1828123551/files/pictures/default-profile-picture1.jpg");
                    Backendless.UserService.update(backendlessUser, new AsyncCallback<BackendlessUser>() {
                        public void handleResponse(BackendlessUser user) {
                            dialog.dismiss();

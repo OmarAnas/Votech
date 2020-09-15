@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements AsyncCallback<Bac
         signup.setHighlightColor(Color.TRANSPARENT);
 
 
-        Backendless.initApp(this,"B808DB02-5530-3A99-FFE3-39A739A3D500","BB1EC234-5D1B-4738-8B61-4471397180A7");
+        Backendless.initApp(this,"DE4269C2-06C3-E85D-FF1D-2845241AB400","A1F1023B-FB99-4257-8BB5-88FFDB3DC94C");
 
        if(Backendless.UserService.CurrentUser() != null )
        {
